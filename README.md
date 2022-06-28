@@ -6,15 +6,26 @@ This app assumes that the Flex Project and Frontline Project are two entire sepa
 
 ### Architecture
 
-<img src="https://flex-frontline-integration-1058-dev.twil.io/diagram.png" />
+<img src="https://flex-frontline-integration-1058-dev.twil.io/diagram.png" style="width:50%;margin:0;" />
 
 ### Deployment Steps
 1. Copy the env.sample to .env
+```
+cp env.sample .env
+```
 2. Update the values to the required environment variables - be sure to get the default webhook URL from your Flex Programmable Chat service.
-<img src="https://flex-frontline-integration-1058-dev.twil.io/default-webhook.png" />
+```
+vi .env
+```
+<img src="https://flex-frontline-integration-1058-dev.twil.io/default-webhook.png" style="width:50%;margin:0;"/>
 3. Deploy web app to serverless environment
+```
+npm run deploy
+```
 4. Add webhook to the Programmable Chat service
-<img src="https://flex-frontline-integration-1058-dev.twil.io/flex-chat-webhook.png" />
+<img src="https://flex-frontline-integration-1058-dev.twil.io/flex-chat-webhook.png" style="width:50%;margin:0;" />
 5. Add webhook to the Conversation Service
-<img src="https://flex-frontline-integration-1058-dev.twil.io/frontline-conversations-webhook.png" />
+<img src="https://flex-frontline-integration-1058-dev.twil.io/frontline-conversations-webhook.png" style="width:50%;margin:0;" />
+
+
 
