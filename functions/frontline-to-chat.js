@@ -1,19 +1,21 @@
 exports.handler = async function (context, event, callback) {
   /*
+   * This endpoint handles the inbound Webhook from the Conversation API from
+   * the Frontline project. The Conversation will have attributes that identify
+   * the corresponding ChannelSid and Instance Sid on the Flex side. We look 
+   * up the conversation, get the attributes, use the attributes to look up
+   * the Channel, then post the message to the Channel
    *
+   * This endpoint is really only called if the Frontline app is used to
+   * post a message
+   *
+   * IMPORTANT: Only set this endpoint in the POST webhook. Do not call
+   * this endpoint for the PRE webhook.
    */
-  if(event.Type == "post") {
     const client = context.getTwilioClient();
-    const frClient = require('twilio')(context.FRONTLINE_ACCOUNT_SID, context.FRONTLINE_AUTH_TOKEN);
-    const convo = await frClient.conversations.conversations(event.ConversationSid).fetch();
-    convo.attributes = JSON.parse(convo.attributes);
-    await client.chat.v2.services(convo.attributes.chatInstanceSid)
-      .channels(convo.attributes.chatChannelSid)
-      .messages
-      .create({
-        from: event.ClientIdentity,
-        body: event.Body,
-        attributes: JSON.stringify({ AddedViaConversationWebhook: true })
-      })
-  }
+    const chat_helpers = require(Runtime.getFunctions()['helpers/chat'].path)(context, event);
+    const conversations_helpers = require(Runtime.getFunctions()['helpers/conversations'].path)(context, event);
+    const convo = await conversations_helpers.findConversation();
+    await chat_helpers.postMessageToChatChannel(client, convo)
+
 }

@@ -5,6 +5,16 @@ module.exports = function (context, event) {
   const frClient = require('twilio')(context.FRONTLINE_ACCOUNT_SID, context.FRONTLINE_AUTH_TOKEN);
 
   /*
+   * Look for the Conversation referenced in the inbound Conversation Webhook
+   * so we can access its attributes
+   */
+  Self.findConversation = async function() {
+    const convo = await frClient.conversations.conversations(event.ConversationSid).fetch();
+    convo.attributes = JSON.parse(convo.attributes);
+    return convo;
+  }
+
+  /*
    * Creates the corresponding Conversation object
    * and sets the ChannelSid and InstanceSid of the Channel
    * its suppose to correspond to on the Flex project

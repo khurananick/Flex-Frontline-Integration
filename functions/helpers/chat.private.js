@@ -36,6 +36,20 @@ module.exports = function (context, event) {
   }
 
   /*
+   * Replicates the Message resource from the Conversation to the Channel
+   */
+  Self.postMessageToChatChannel = async function(client, convo) {
+    await client.chat.v2.services(convo.attributes.chatInstanceSid)
+      .channels(convo.attributes.chatChannelSid)
+      .messages
+      .create({
+        from: event.ClientIdentity,
+        body: event.Body,
+        attributes: JSON.stringify({ AddedViaConversationWebhook: true })
+      })
+  }
+
+  /*
    * Checks if any of the participants in the Channel are set as {'member_type':'agent'}
    */
   Self.channelHasAgent = function(participants) {
