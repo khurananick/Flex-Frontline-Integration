@@ -17,5 +17,4 @@ exports.handler = async function (context, event, callback) {
     const conversations_helpers = require(Runtime.getFunctions()['helpers/conversations'].path)(context, event);
     const convo = await conversations_helpers.findConversation();
     await chat_helpers.postMessageToChatChannel(client, convo)
-
 }
