@@ -4,6 +4,10 @@ This simple web app takes webhooks from the Programmable Chat API used in the Tw
 
 This app assumes that the Flex Project and Frontline Project are two entire separate Projects/Accounts, and that the Worker in the Flex Project has the same username as the user in the Frontline project. 
 
+## Demo Video
+
+[![Demo](https://play.vidyard.com/5ahUuHUURTwr4Zd5Bqpcuq.jpg)](https://share.vidyard.com/watch/5ahUuHUURTwr4Zd5Bqpcuq?)
+
 ### Architecture
 
 <p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/imgs/diagram.png" style="width:60%;margin:0;" /></p>
