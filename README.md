@@ -6,7 +6,7 @@ This app assumes that the Flex Project and Frontline Project are two entire sepa
 
 ### Architecture
 
-<p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/diagram.png" style="width:60%;margin:0;" /></p>
+<p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/imgs/diagram.png" style="width:60%;margin:0;" /></p>
 
 ### Deployment Steps
 1. Copy the env.sample to .env
@@ -30,7 +30,7 @@ FRONTLINE_AUTH_TOKEN=...
 FLEX_CHAT_DEFAULT_WEBHOOK="https://webhooks.twilio.com/v1/Accounts/.../Proxy/.../Webhooks/ChatEvent/ProxyIdentifier/..."
 ```
 
-<p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/default-webhook.png" style="width:80%;margin:0;"/></p>
+<p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/imgs/default-webhook.png" style="width:80%;margin:0;"/></p>
 
 ***
 
@@ -45,7 +45,7 @@ npm run deploy
 ```
 https://YOUR_SERVICE_SUBDOMAIN.twil.io/chat-to-frontline
 ```
-<p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/flex-chat-webhook.png" style="width:80%;margin:0;" /></p>
+<p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/imgs/flex-chat-webhook.png" style="width:80%;margin:0;" /></p>
 
 ***
 
@@ -53,7 +53,7 @@ https://YOUR_SERVICE_SUBDOMAIN.twil.io/chat-to-frontline
 ```
 https://YOUR_SERVICE_SUBDOMAIN.twil.io/frontline-to-chat
 ```
-<p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/frontline-conversations-webhook.png" style="width:80%;margin:0;" /></p>
+<p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/imgs/frontline-conversations-webhook.png" style="width:80%;margin:0;" /></p>
 
 
 
