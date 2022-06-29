@@ -20,6 +20,15 @@ cp env.sample .env
 ```
 vi .env
 ```
+
+```
+ACCOUNT_SID=AC...
+AUTH_TOKEN=...
+FRONTLINE_ACCOUNT_SID=AC...
+FRONTLINE_AUTH_TOKEN=...
+FLEX_CHAT_DEFAULT_WEBHOOK="https://webhooks.twilio.com/v1/Accounts/.../Proxy/.../Webhooks/ChatEvent/ProxyIdentifier/..."
+```
+
 <p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/default-webhook.png" style="width:80%;margin:0;"/></p>
 
 ***
@@ -32,11 +41,17 @@ npm run deploy
 ***
 
 4. Add webhook to the Programmable Chat service
+```
+https://flex-frontline-integration-1058-dev.twil.io/frontline-to-chat
+```
 <p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/flex-chat-webhook.png" style="width:80%;margin:0;" /></p>
 
 ***
 
 5. Add webhook to the Conversation Service
+```
+https://flex-frontline-integration-1058-dev.twil.io/chat-to-frontline
+```
 <p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/frontline-conversations-webhook.png" style="width:80%;margin:0;" /></p>
 
 

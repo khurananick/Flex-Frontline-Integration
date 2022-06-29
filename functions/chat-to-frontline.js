@@ -7,13 +7,9 @@
 exports.handler = async function (context, event, callback) {
   const helpers = require(Runtime.getFunctions()['helpers/functions'].path)(context, event);
   const chat_helpers = require(Runtime.getFunctions()['helpers/chat'].path)(context, event);
-  const conversations_helpers = require(Runtime.getFunctions()['helpers/conversations'].path)(context, event);
-
-  let convo;
-  const client = context.getTwilioClient();
 
   /*
-   * By default, the Programmable Chat is confiered with a webhook callback.
+   * By default, the Programmable Chat is configered with a webhook callback.
    * Set the webhook callback in your .env files
    * This way we will still make that webhook call even though we're going to replace
    * the URL with this endpoint.
@@ -23,17 +19,6 @@ exports.handler = async function (context, event, callback) {
    */
   if(helpers.inArray(["onMessageSent", "onChannelUpdated", "onChannelDestroyed"], event.EventType)) {
     await chat_helpers.replicateDefaultFlexWebhook();
-  }
-
-  /*
-   * In Programmable Chat each "session" is called a Channel.
-   * Anytime a message is posted into the Chat Channel this webhook is 
-   * going to check if a corresponding conversation exists, if not then create one,
-   * then check if the corresponding conversation has corresponding participants,
-   * if not then reate the participants as well,
-   * then post the Message into the corresponding Conversation
-   */
-  if(helpers.inArray(["onMessageSent"], event.EventType)) {
     /*
      * When a message is posted from the Frontline app, it creates a webhook
      * to the frontline-to-chat function, which creates a corresponding Message
@@ -45,7 +30,22 @@ exports.handler = async function (context, event, callback) {
     if(event.Attributes)
       if(JSON.parse(event.Attributes).AddedViaConversationWebhook)
         return;
+  }
 
+  const conversations_helpers = require(Runtime.getFunctions()['helpers/conversations'].path)(context, event);
+
+  let convo;
+  const client = context.getTwilioClient();
+
+  /*
+   * In Programmable Chat each "session" is called a Channel.
+   * Anytime a message is posted into the Chat Channel this webhook is 
+   * going to check if a corresponding conversation exists, if not then create one,
+   * then check if the corresponding conversation has corresponding participants,
+   * if not then reate the participants as well,
+   * then post the Message into the corresponding Conversation
+   */
+  if(helpers.inArray(["onMessageSent"], event.EventType)) {
     let channel = await chat_helpers.findChatChannel(client);
     const participants = await chat_helpers.fetchChatChannelParticipants(client);
 
