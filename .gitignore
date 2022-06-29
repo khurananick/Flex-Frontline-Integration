@@ -1,4 +1,5 @@
 *.swp
+assets/imgs
 
 # Twilio Serverless
 .twiliodeployinfo
