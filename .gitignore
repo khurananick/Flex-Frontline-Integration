@@ -1,4 +1,5 @@
 *.swp
+*.swo
 assets/imgs
 .DS_Store
 

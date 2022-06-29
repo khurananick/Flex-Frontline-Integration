@@ -5,7 +5,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "twilio-run",
-    "deploy": "twilio-run deploy"
+    "deploy": "twilio-run deploy",
+    "deploy_routes": "node deploy_routes"
   },
   "dependencies": {
     "twilio": "^3.56",
@@ -13,7 +14,8 @@
     "form-data":"2.5.1",
     "axios": "0.26.1",
     "crypto": "1.0.1",
-    "qs": "6.10.3"
+    "qs": "6.10.3",
+    "dotenv":"6.2.0"
   },
   "devDependencies": {
     "twilio-run": "^3.4.2"
