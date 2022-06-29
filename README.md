@@ -42,7 +42,7 @@ npm run deploy
 
 4. Add webhook to the Programmable Chat service
 ```
-https://YOUR_SERVICE_SUBDOMAIN.twil.io/frontline-to-chat
+https://YOUR_SERVICE_SUBDOMAIN.twil.io/chat-to-frontline
 ```
 <p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/flex-chat-webhook.png" style="width:80%;margin:0;" /></p>
 
@@ -50,7 +50,7 @@ https://YOUR_SERVICE_SUBDOMAIN.twil.io/frontline-to-chat
 
 5. Add webhook to the Conversation Service
 ```
-https://YOUR_SERVICE_SUBDOMAIN.twil.io/chat-to-frontline
+https://YOUR_SERVICE_SUBDOMAIN.twil.io/frontline-to-chat
 ```
 <p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/frontline-conversations-webhook.png" style="width:80%;margin:0;" /></p>
 
