@@ -13,6 +13,7 @@ const baseurl = process.env.npm_config_route;
 })();
 
 (async function deployFlexTaskrouterWebhook() {
+  return; // by default, we will not set Flex TaskRouter Webhook
   console.log("Setting Flex TaskRouter Webhook.");
   await client.taskrouter.workspaces(process.env.WORKSPACE_SID)
       .update({

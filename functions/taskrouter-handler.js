@@ -12,6 +12,7 @@ exports.handler = async function (context, event, callback) {
    * going to be responsible for responding.
    */
   if(event.EventType == 'reservation.created') {
+    return; // by default, we don't auto accept a reservation. remove this line to auto accpet a reservation.
     const client = context.getTwilioClient();
     await client.taskrouter.workspaces(event.WorkspaceSid)
       .tasks(event.TaskSid)

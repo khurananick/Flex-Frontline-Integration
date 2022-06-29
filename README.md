@@ -6,7 +6,7 @@ This app assumes that the Flex Project and Frontline Project are two entire sepa
 
 ## Demo Video
 
-[![Demo](https://play.vidyard.com/5ahUuHUURTwr4Zd5Bqpcuq.jpg)](https://share.vidyard.com/watch/5ahUuHUURTwr4Zd5Bqpcuq?)
+[![Demo](https://play.vidyard.com/5ahUuHUURTwr4Zd5Bqpcuq.jpg)](https://share.vidyard.com/watch/KBBq8gf2sRsmuFbFAmuxqn?)
 
 ## Architecture
 
