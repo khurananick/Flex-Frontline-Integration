@@ -45,6 +45,7 @@ module.exports = function (context, event) {
         let p = await frClient.conversations.conversations(convo.sid)
                       .participants
                       .create({ identity: participant.identity })
+                      .catch(function(e) { /* do nothing */ });
       }
     }
   }

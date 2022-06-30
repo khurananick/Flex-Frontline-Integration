@@ -16,7 +16,7 @@ exports.handler = async function (context, event, callback) {
    * going to be responsible for responding.
    */
   if(event.EventType == 'reservation.created') {
-    if(!context.AUTO_ACCEPT_TASKS) return;
+    if(!context.AUTO_ACCEPT_TASKS || context.AUTO_ACCEPT_TASKS != 'true') return;
 
     client = context.getTwilioClient();
     await taskrouter_helpers.updateTaskrouterReservation(
