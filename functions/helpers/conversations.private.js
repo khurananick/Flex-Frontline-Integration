@@ -51,6 +51,22 @@ module.exports = function (context, event) {
   }
 
   /*
+   * In case a message is fired but agent isn't available on time,
+   * we'll give it a couple of seconds and try again
+   */
+  Self.retrySync = async function(client, chat_helpers, convo, participants, channel) {
+    const delay = 2000;
+    console.log("Going to retry in: ", delay);
+    setTimeout(async function() {
+      const participants = await chat_helpers.fetchChatChannelParticipants(client);
+      if(chat_helpers.channelHasAgent(participants)) {
+        await Self.addParticipantsToConversation(convo, participants, channel);
+        console.log("Added agent on retry.");
+      }
+    }, 2000);
+  }
+
+  /*
    * Replicates the Message resource from the Channel to the Conversation
    */
   Self.postMessageToFrontlineConversation = async function(convo, participants) {
