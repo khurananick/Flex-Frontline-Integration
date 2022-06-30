@@ -10,17 +10,29 @@ This app assumes that the Flex Project and Frontline Project are two entire sepa
 
 ## Architecture
 
+<h4 align="center">Action > Webhook > Replication</h4></h4>
+
+***
+
 <p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/imgs/diagram.png" style="width:60%;margin:0;" /></p>
+
+* **Flex Is The Primary Orchestrator**: This would be the best way to track SLAs (agent response times, duration of conversations, average wait time, etc.)
+
+## Considerations
+
+* **Desynchronization**: In case the Programmable Chat service in the Flex Project or the Conversations service in the Frontline project experience downtime, the Chat Channel and the Conversation may fall out of sync. 
+	* **Potential Options**: (1) Failover/retry requests. However, for downtimes longer than function execution times, this method will not work. (2) Using Segment as a Queueing service to keep track of every event and replaying failed events. (3) Using a third party queueing sytem for tracking and replaying failed events. 
+
 
 ## Deployment Steps
 
-#### 1. Copy the env.sample to .env
+##### 1. Copy the env.sample to .env
 ```
 cp env.sample .env
 ```
 
 
-#### 2. Update the values to the required environment variables - be sure to get the default webhook URL from your Flex Programmable Chat service.
+##### 2. Update the values to the required environment variables - be sure to get the default webhook URL from your Flex Programmable Chat service.
 ```
 vi .env
 ```
@@ -42,24 +54,25 @@ CONERSATION_SERVICE_SID=IS...
 <p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/imgs/default-webhook.png" style="width:80%;margin:0;"/></p>
 
 
-#### 3. Deploy web app to serverless environment
+##### 3. Deploy web app to serverless environment
 ```
 npm run deploy
 ```
 
 
-#### 4. Add webhook to the Programmable Chat service
+##### 4. Add webhook to the Programmable Chat service
 ```
 https://YOUR_SERVICE_SUBDOMAIN.twil.io/chat-to-frontline
 ```
 <p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/imgs/flex-chat-webhook.png" style="width:80%;margin:0;" /></p>
 
 
-#### 5. Add webhook to the Conversation Service
+##### 5. Add webhook to the Conversation Service
 ```
 https://YOUR_SERVICE_SUBDOMAIN.twil.io/frontline-to-chat
 ```
 <p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/imgs/frontline-conversations-webhook.png" style="width:80%;margin:0;" /></p>
+
 
 
 
