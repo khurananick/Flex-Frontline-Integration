@@ -6,10 +6,11 @@ module.exports = function (context, event) {
   /*
    * Fetching a list of all the workers in the Flex project.
    */
-  Self.getWorkers = async function(client, wsid) {
+  Self.getWorkers = async function(client, wsid, filters={}) {
+    filters.limit = 50000;
     const workers = await client.taskrouter.workspaces(wsid)
                  .workers
-                 .list()
+                 .list(filters)
     return workers;
   }
 
@@ -17,19 +18,16 @@ module.exports = function (context, event) {
    * Returns the woker based on friendlyName match.
    */
   Self.getWorkerByIdentity = async function(client, wsid, name) {
-    const workers = await Self.getWorkers(client, wsid);
-    for(const worker of workers) {
-      if(worker.friendlyName == name) {
-        worker.attributes = JSON.parse(worker.attributes);
-        return worker;
-      }
-    }
+    const workers = await Self.getWorkers(client, wsid, {friendlyName:name});
+    const worker = workers[0];
+    worker.attributes = JSON.parse(worker.attributes);
+    return worker;
   }
 
   /*
    * Fetches the list of activities workers can be set to.
    */
-  Self.getActivities = async function(client, wsid) {
+  Self.getActivities = async function(client, wsid, filters={}) {
     const activities = await client.taskrouter.workspaces(wsid)
                  .activities
                  .list()
@@ -40,11 +38,9 @@ module.exports = function (context, event) {
    * Returns the activity matching the friendlyName
    */
   Self.getActivityByName = async function(client, wsid, name) {
-    const activities = await Self.getActivities(client, wsid);
-    for(const activity of activities) {
-      if(activity.friendlyName == name)
-        return activity;
-    }
+    const activities = await Self.getActivities(client, wsid, {friendlyName:name});
+    const activity = activities[0];
+    return activity;
   }
 
   /*
