@@ -12,7 +12,6 @@ exports.handler = async function (context, event, callback) {
    * going to be responsible for responding.
    */
   if(event.EventType == 'reservation.created') {
-    return; // by default, we don't auto accept a reservation. remove this line to auto accpet a reservation.
     const client = context.getTwilioClient();
     await client.taskrouter.workspaces(event.WorkspaceSid)
       .tasks(event.TaskSid)
@@ -26,10 +25,18 @@ exports.handler = async function (context, event, callback) {
    * to the same status.
    */
   if(event.EventType == 'worker.activity.update') {
-    const flex_taskrouter_helpers = require(Runtime.getFunctions()['helpers/flex_taskrouter'].path)(context, event);
+    const taskrouter_helpers = require(Runtime.getFunctions()['helpers/taskrouter'].path)(context, event);
+    let client, wsid;
 
     if(event.AccountSid == context.FRONTLINE_ACCOUNT_SID) {
-      await flex_taskrouter_helpers.syncWorkerActivity();
+      client = context.getTwilioClient();
+      wsid = context.WORKSPACE_SID;
+      await taskrouter_helpers.syncWorkerActivity(client, wsid);
+    }
+    else if(event.AccountSid == context.ACCOUNT_SID) {
+      client = require("twilio")(context.FRONTLINE_ACCOUNT_SID, context.FRONTLINE_AUTH_TOKEN);
+      wsid = context.FRONTLINE_WORKSPACE_SID;
+      await taskrouter_helpers.syncWorkerActivity(client, wsid);
     }
   }
 }
