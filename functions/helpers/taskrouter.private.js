@@ -30,7 +30,7 @@ module.exports = function (context, event) {
   Self.getActivities = async function(client, wsid, filters={}) {
     const activities = await client.taskrouter.workspaces(wsid)
                  .activities
-                 .list()
+                 .list(filters)
     return activities;
   }
 
