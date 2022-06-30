@@ -56,6 +56,7 @@ module.exports = function (context, event) {
     await frClient.conversations.conversations(convo.sid)
                       .messages
                       .create({author: event.From, body: event.Body})
+                      .catch(function(e) { /* do nothing */ })
   }
 
   /*
@@ -64,7 +65,8 @@ module.exports = function (context, event) {
    */
   Self.closeFrontlineConversation = async function(convo) {
     await frClient.conversations.conversations(convo.sid)
-                    .update({state: "closed"});
+                    .update({state: "closed"})
+                    .catch(function(e) { /* do nothing. */ });
   }
 
   return Self;

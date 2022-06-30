@@ -47,7 +47,10 @@ module.exports = function (context, event) {
     }
   }
 
-  Self.setActivity = async function(client, wsid, worker, activity) {
+  /*
+   * Sets the activity of the worker in taskrouter if new activity friendlyname is different
+   */
+  Self.setTaskrouterWorkerActivity = async function(client, wsid, worker, activity) {
     if(!activity || !activity.sid) return;
     if(worker.activityName == activity.friendlyName) return;
 
@@ -56,7 +59,17 @@ module.exports = function (context, event) {
                .update({activitySid: activity.sid})
   }
 
-  Self.updateUserStatus = async function(client, worker) {
+  Self.updateTaskrouterReservation = async function(client, wsid, tsid, rsid, params) {
+    await client.taskrouter.workspaces(wsid)
+      .tasks(tsid)
+      .reservations(rsid)
+      .update(params)
+  }
+
+  /*
+   * Frontline has a separate activity for worker status which we can set as well.
+   */
+  Self.updateFrontlineUserStatus = async function(client, worker) {
     if(!worker.attributes.userSid) return;
 
     const user = await client.frontlineApi
@@ -73,8 +86,8 @@ module.exports = function (context, event) {
     const worker = await Self.getWorkerByIdentity(client, wsid, event.WorkerName);
     const activity = await Self.getActivityByName(client, wsid, event.WorkerActivityName);
 
-    await Self.setActivity(client, wsid, worker, activity);
-    await Self.updateUserStatus(client, worker);
+    await Self.setTaskrouterWorkerActivity(client, wsid, worker, activity);
+    await Self.updateFrontlineUserStatus(client, worker);
   }
 
   return Self;

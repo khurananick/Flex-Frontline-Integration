@@ -7,7 +7,7 @@ module.exports = function (context, event) {
    * Looks for the chat channel referenced in the inbound Chat Webhook
    */
   Self.findChatChannel = async function(client) {
-    const channel = await client.chat.v2.services(event.InstanceSid)
+    const channel = await client.chat.v2.services(context.CHAT_SERVICE_SID)
                 .channels(event.ChannelSid)
                 .fetch()
     channel.attributes = JSON.parse(channel.attributes);
@@ -28,7 +28,7 @@ module.exports = function (context, event) {
    * Updates the attributes of the Channel resource.
    */
   Self.updateChatChannelAttributes = async function(client, params) {
-    const channel = await client.chat.v2.services(event.InstanceSid)
+    const channel = await client.chat.v2.services(context.CHAT_SERVICE_SID)
       .channels(event.ChannelSid)
       .update({attributes: JSON.stringify(params)});
     channel.attributes = JSON.parse(channel.attributes);

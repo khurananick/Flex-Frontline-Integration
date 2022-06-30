@@ -1,4 +1,8 @@
 exports.handler = async function (context, event, callback) {
+  const response = new Twilio.Response();
+  response.appendHeader('Content-Type', 'application/json');
+  response.appendHeader('Access-Control-Allow-Origin', '*');
+
   /*
    * This endpoint handles the inbound Webhook from the Conversation API from
    * the Frontline project. The Conversation will have attributes that identify
@@ -12,9 +16,46 @@ exports.handler = async function (context, event, callback) {
    * IMPORTANT: Only set this endpoint in the POST webhook. Do not call
    * this endpoint for the PRE webhook.
    */
-    const client = context.getTwilioClient();
-    const chat_helpers = require(Runtime.getFunctions()['helpers/chat'].path)(context, event);
-    const conversations_helpers = require(Runtime.getFunctions()['helpers/conversations'].path)(context, event);
-    const convo = await conversations_helpers.findConversation();
+  const client = context.getTwilioClient();
+  const chat_helpers = require(Runtime.getFunctions()['helpers/chat'].path)(context, event);
+  const conversations_helpers = require(Runtime.getFunctions()['helpers/conversations'].path)(context, event);
+  const taskrouter_helpers = require(Runtime.getFunctions()['helpers/taskrouter'].path)(context, event);
+  const convo = await conversations_helpers.findConversation();
+
+  if(event.EventType == "onMessageAdded") {
     await chat_helpers.postMessageToChatChannel(client, convo)
+  }
+
+  /*
+   * If a conversation is closed from the frontline app
+   * we'll close the chat channe in flex as well.
+   */
+  if(event.EventType == "onConversationStateUpdated") {
+    if(event.StateTo == "closed") {
+
+      if(!context.ALLOW_CONVERSATION_CLOSE || context.ALLOW_CONVERSATION_CLOSE=='false') {
+
+        event.ChannelSid = convo.attributes.chatChannelSid;
+        const channel = await chat_helpers.findChatChannel(client);
+
+        await taskrouter_helpers.updateTaskrouterReservation(
+          client,
+          channel.attributes.WorkspaceSid,
+          channel.attributes.TaskSid,
+          channel.attributes.ResourceSid,
+          {reservationStatus: 'wrapping'}
+        );
+
+        await taskrouter_helpers.updateTaskrouterReservation(
+          client,
+          channel.attributes.WorkspaceSid,
+          channel.attributes.TaskSid,
+          channel.attributes.ResourceSid,
+          {reservationStatus: 'completed'}
+        );
+
+        callback(null, response);
+      }
+    }
+  }
 }

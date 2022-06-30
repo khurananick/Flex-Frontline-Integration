@@ -1,4 +1,8 @@
 exports.handler = async function (context, event, callback) {
+  let client;
+  const taskrouter_helpers = require(Runtime.getFunctions()['helpers/taskrouter'].path)(context, event);
+  const chat_helpers = require(Runtime.getFunctions()['helpers/chat'].path)(context, event);
+
   /*
    * Optional function allowing you to set a callback URL
    * for taskrouter, which triggers callbacks for task
@@ -12,11 +16,29 @@ exports.handler = async function (context, event, callback) {
    * going to be responsible for responding.
    */
   if(event.EventType == 'reservation.created') {
-    const client = context.getTwilioClient();
-    await client.taskrouter.workspaces(event.WorkspaceSid)
-      .tasks(event.TaskSid)
-      .reservations(event.ResourceSid)
-      .update({reservationStatus: 'accepted'})
+    if(!context.AUTO_ACCEPT_TASKS) return;
+
+    client = context.getTwilioClient();
+    await taskrouter_helpers.updateTaskrouterReservation(
+      client,
+      event.WorkspaceSid,
+      event.TaskSid,
+      event.ResourceSid,
+      {reservationStatus: 'accepted'}
+    );
+  }
+
+  if(event.EventType == 'reservation.accepted') {
+    client = context.getTwilioClient();
+
+    event.ChannelSid = JSON.parse(event.TaskAttributes).channelSid;
+
+    const channel = await chat_helpers.findChatChannel(client);
+    channel.attributes.WorkspaceSid = event.WorkspaceSid;
+    channel.attributes.TaskSid = event.TaskSid;
+    channel.attributes.ResourceSid = event.ResourceSid;
+
+    await chat_helpers.updateChatChannelAttributes(client, channel.attributes);
   }
 
   /*
@@ -25,7 +47,6 @@ exports.handler = async function (context, event, callback) {
    * to the same status.
    */
   if(event.EventType == 'worker.activity.update') {
-    const taskrouter_helpers = require(Runtime.getFunctions()['helpers/taskrouter'].path)(context, event);
     let client, wsid;
 
     if(event.AccountSid == context.FRONTLINE_ACCOUNT_SID) {
