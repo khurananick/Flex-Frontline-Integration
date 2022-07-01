@@ -8,6 +8,11 @@ This app assumes that the Flex Project and Frontline Project are two entire sepa
 
 [![Demo](https://play.vidyard.com/5ahUuHUURTwr4Zd5Bqpcuq.jpg)](https://share.vidyard.com/watch/KBBq8gf2sRsmuFbFAmuxqn?)
 
+## Pre-requisites
+
+You must have a working Flex Account and a working Frontline Account.
+You should deploy this application only to your Flex Account.
+
 ## Architecture
 
 <h4 align="center">Action > Webhook > Replication</h4></h4>
@@ -41,14 +46,20 @@ vi .env
 # these values should come from your Flex project.
 ACCOUNT_SID=AC...
 AUTH_TOKEN=...
-WORKSPACE_SID=WS...
+WORKSPACE_SID=...
 CHAT_SERVICE_SID=IS...
+AUTO_ACCEPT_TASKS=true
 FLEX_CHAT_DEFAULT_WEBHOOK="https://webhooks.twilio.com/v1/Accounts/.../Proxy/.../Webhooks/ChatEvent/ProxyIdentifier/..."
+SMS_NUMBER=+...
+WHATSAPP_NUMBER=whatsapp:+...
 # these values should come from your Frontline project.
 FRONTLINE_ACCOUNT_SID=AC...
 FRONTLINE_AUTH_TOKEN=...
 FRONTLINE_WORKSPACE_SID=WS...
+FRONTLINE_AVAILABLE_STATUS=Available
 CONERSATION_SERVICE_SID=IS...
+NOTIFICATION_TIMEOUT_MINUTES=0.5
+BACKUP_CRM_ENDPOINT=https://...
 ```
 
 <p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/imgs/default-webhook.png" style="width:80%;margin:0;"/></p>
@@ -58,21 +69,21 @@ CONERSATION_SERVICE_SID=IS...
 ```
 npm run deploy
 ```
-
-
-##### 4. Add webhook to the Programmable Chat service
+This will return a list of webhooks your serverless project has created. For example
 ```
-https://YOUR_SERVICE_SUBDOMAIN.twil.io/chat-to-frontline
-```
-<p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/imgs/flex-chat-webhook.png" style="width:80%;margin:0;" /></p>
-
-
-##### 5. Add webhook to the Conversation Service
-```
+https://YOUR_SERVICE_SUBDOMAIN.twil.io/check-agent-availability
 https://YOUR_SERVICE_SUBDOMAIN.twil.io/frontline-to-chat
+https://YOUR_SERVICE_SUBDOMAIN.twil.io/frontline/crm
+https://YOUR_SERVICE_SUBDOMAIN.twil.io/taskrouter-handler
+... etc.
 ```
-<p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/imgs/frontline-conversations-webhook.png" style="width:80%;margin:0;" /></p>
+
+##### 4. Update the webhooks in both projects.
+<p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/imgs/frontline-callbaks.png" style="width:80%;margin:0;"/></p>
 
 
-
-
+##### 5. Update the frontline callbacks (if needed).
+**NOTE**: *Be sure to have copied the default Programmable Chat Webhook from the account and have it in your .env file before you do this next step.*
+```
+npm run npm run deploy_routes --route=https://YOUR_SERVICE_SUBDOMAIN.twil.io
+```
