@@ -10,6 +10,12 @@ module.exports = function (context, event) {
     return signature;
   }
 
+  Self.getServiceUrl = function() {
+    if(context.DOMAIN_NAME.match("localhost"))
+      return event.request.headers.host || context.DOMAIN_NAME;
+    return context.DOMAIN_NAME;
+  }
+
   Self.validateXTwilioSignature = function(authToken) {
     const client = require('twilio');
 
@@ -17,7 +23,7 @@ module.exports = function (context, event) {
     delete params.request;
 
     const signature = event.request.headers['x-twilio-signature'];
-    const url = `https://${context.DOMAIN_NAME}${context.PATH}`;
+    const url = `https://${Self.getServiceUrl()}${context.PATH}`;
 
     return client.validateRequest(authToken, signature, url, params);
   }
