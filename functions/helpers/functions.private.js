@@ -14,13 +14,22 @@ module.exports = function (context, event) {
     return arr.indexOf(val) >= 0
   }
 
-  Self.isJson = function (string) {
+  Self.isJson = function (item) {
+    item = typeof item !== "string"
+        ? JSON.stringify(item)
+        : item;
+
     try {
-      JSON.parse(string)
-    } catch(e) {
-      return false
+        item = JSON.parse(item);
+    } catch (e) {
+        return false;
     }
-    return true;
+
+    if (typeof item === "object" && item !== null) {
+        return true;
+    }
+
+    return false;
   }
 
   Self.proxyRequest = async function(url) {

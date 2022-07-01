@@ -2,6 +2,8 @@ exports.handler = async function (context, event, callback) {
   const helpers = require(Runtime.getFunctions()['helpers/functions'].path)(context, event);
   const chat_helpers = require(Runtime.getFunctions()['helpers/chat'].path)(context, event);
 
+  console.log(event);
+
   if(helpers.isJson(event.CustomerId) && event.Location == 'GetCustomerDetailsByCustomerId') {
     const customer = JSON.parse(event.CustomerId);
     const client = context.getTwilioClient();
