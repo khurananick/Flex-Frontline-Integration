@@ -78,12 +78,17 @@ https://YOUR_SERVICE_SUBDOMAIN.twil.io/taskrouter-handler
 ... etc.
 ```
 
-##### 4. Update the webhooks in both projects.
+##### 4. Update the frontline callbacks (if needed).
 <p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/imgs/frontline-callbaks.png" style="width:80%;margin:0;"/></p>
 
 
-##### 5. Update the frontline callbacks (if needed).
+##### 5. Update the webhooks in both projects.
 **NOTE**: *Be sure to have copied the default Programmable Chat Webhook from the account and have it in your .env file before you do this next step.*
 ```
 npm run npm run deploy_routes --route=https://YOUR_SERVICE_SUBDOMAIN.twil.io
 ```
+##### 6. Ensure the following events are enabled for Chat and Conversation
+<p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/imgs/frontline-post-webhooks.png" style="width:80%;margin:0;"/></p>
+<p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/imgs/default-webhooks.png" style="width:80%;margin:0;"/></p>
+
+
