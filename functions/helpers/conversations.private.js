@@ -68,7 +68,13 @@ module.exports = function (context, event) {
 
     for(const participant of participants) {
       if(!helpers.inArray(convoParticipants, participant.identity)) {
-        let p = await Self.addParticipant(frClient, convo, {identity: participant.identity})
+        channel.attributes.customer_id = JSON.stringify({
+          p: participant.sid, c: channel.sid
+        });
+        let p = await Self.addParticipant(frClient, convo, {
+          identity: participant.identity,
+          attributes: JSON.stringify(channel.attributes)
+        })
       }
     }
   }
