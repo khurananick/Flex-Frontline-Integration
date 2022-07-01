@@ -5,6 +5,10 @@
  * API in the Frontline Project.
  */
 exports.handler = async function (context, event, callback) {
+  const response = new Twilio.Response();
+  response.appendHeader('Content-Type', 'application/json');
+  response.appendHeader('Access-Control-Allow-Origin', '*');
+
   const helpers = require(Runtime.getFunctions()['helpers/functions'].path)(context, event);
   const chat_helpers = require(Runtime.getFunctions()['helpers/chat'].path)(context, event);
 
@@ -93,4 +97,6 @@ exports.handler = async function (context, event, callback) {
           await conversations_helpers.closeFrontlineConversation(convo);
     }
   }
+
+  callback(null, response);
 }

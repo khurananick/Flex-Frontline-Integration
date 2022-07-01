@@ -10,24 +10,31 @@ module.exports = function (context, event) {
     return signature;
   }
 
+  Self.validateXTwilioSignature = function(authToken) {
+    const client = require('twilio');
+
+    const params = Object.assign({}, event);
+    delete params.request;
+
+    const signature = event.request.headers['x-twilio-signature'];
+    const url = `https://${context.DOMAIN_NAME}${context.PATH}`;
+
+    return client.validateRequest(authToken, signature, url, params);
+  }
+
   Self.inArray = function(arr, val) {
     return arr.indexOf(val) >= 0
   }
 
   Self.isJson = function (item) {
-    item = typeof item !== "string"
-        ? JSON.stringify(item)
-        : item;
+    item = typeof item !== "string" ? JSON.stringify(item) : item;
 
     try {
         item = JSON.parse(item);
-    } catch (e) {
-        return false;
     }
+    catch (e) { return false; }
 
-    if (typeof item === "object" && item !== null) {
-        return true;
-    }
+    if (typeof item === "object" && item !== null) return true;
 
     return false;
   }
@@ -38,7 +45,7 @@ module.exports = function (context, event) {
     delete payload.request;
 
     // headers to replicate Default Webhook.
-    const headers = event.request.headers;
+    const headers = Object.assign({}, event.request.headers);
     headers.host = ""
     headers['x-twilio-signature'] = Self.generateXTwilioSignature(url, payload, context.AUTH_TOKEN);
 

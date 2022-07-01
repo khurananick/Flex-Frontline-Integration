@@ -1,4 +1,8 @@
 exports.handler = async function (context, event, callback) {
+  const response = new Twilio.Response();
+  response.appendHeader('Content-Type', 'application/json');
+  response.appendHeader('Access-Control-Allow-Origin', '*');
+
   let client;
   const taskrouter_helpers = require(Runtime.getFunctions()['helpers/taskrouter'].path)(context, event);
   const chat_helpers = require(Runtime.getFunctions()['helpers/chat'].path)(context, event);
@@ -60,4 +64,6 @@ exports.handler = async function (context, event, callback) {
       await taskrouter_helpers.syncWorkerActivity(client, wsid);
     }
   }
+
+  callback(null, callback);
 }
