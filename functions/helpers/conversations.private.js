@@ -84,7 +84,7 @@ module.exports = function (context, event) {
    * we'll give it a couple of seconds and try again
    */
   Self.retrySync = async function(client, chat_helpers, convo, participants, channel) {
-    const delay = 2000;
+    const delay = 3500;
     console.log("Going to retry in: ", delay);
     setTimeout(async function() {
       const participants = await chat_helpers.fetchChatChannelParticipants(client);
@@ -92,7 +92,7 @@ module.exports = function (context, event) {
         await Self.addParticipantsToConversation(convo, participants, channel);
         console.log("Added agent on retry.");
       }
-    }, 2000);
+    }, delay);
   }
 
   /*
