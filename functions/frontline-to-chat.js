@@ -33,6 +33,8 @@ exports.handler = async function (context, event, callback) {
   if(event.EventType == "onConversationStateUpdated") {
     if(event.StateTo == "closed") {
       event.ChannelSid = convo.attributes.chatChannelSid;
+      if(!event.ChannelSid) return;
+
       const channel = await chat_helpers.findChatChannel(client);
 
       await taskrouter_helpers.updateTaskrouterReservation(

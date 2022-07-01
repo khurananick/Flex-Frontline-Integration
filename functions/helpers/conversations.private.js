@@ -28,6 +28,32 @@ module.exports = function (context, event) {
     return convo;
   }
 
+  Self.addParticipant = async function(client, convo, attrs) {
+    await client.conversations.conversations(convo.sid)
+      .participants
+      .create(attrs)
+      .catch(function(e) { /* do nothing */ });
+  }
+
+  Self.getConversationByParticipant = async function(client, identity) {
+    const conversations = await client.conversations
+      .participantConversations
+      .list({identity: identity, limit: 50});
+
+    for(const c of conversations) {
+      if(c.conversationState == "active")
+        return c;
+    }
+  }
+
+  Self.getLastConversationMessage = async function(convo) {
+    const messages = await frClient.conversations
+      .conversations(convo.sid)
+      .messages
+      .list({order: 'desc', limit: 1})
+    return messages[0];
+  }
+
   /*
    * If the participant doesn't already exist in the Conversation
    * adds the corresponding participants
@@ -42,10 +68,7 @@ module.exports = function (context, event) {
 
     for(const participant of participants) {
       if(!helpers.inArray(convoParticipants, participant.identity)) {
-        let p = await frClient.conversations.conversations(convo.sid)
-                      .participants
-                      .create({ identity: participant.identity })
-                      .catch(function(e) { /* do nothing */ });
+        let p = await Self.addParticipant(convo, {identity: participant.identity})
       }
     }
   }

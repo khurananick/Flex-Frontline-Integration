@@ -39,6 +39,8 @@ module.exports = function (context, event) {
    * Replicates the Message resource from the Conversation to the Channel
    */
   Self.postMessageToChatChannel = async function(client, convo) {
+    if(!convo.attributes.chatChannelSid) return;
+
     await client.chat.v2.services(convo.attributes.chatInstanceSid)
       .channels(convo.attributes.chatChannelSid)
       .messages
