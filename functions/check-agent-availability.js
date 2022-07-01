@@ -1,9 +1,14 @@
 exports.handler = async function (context, event, callback) {
+  const response = new Twilio.Response();
+  response.appendHeader('Content-Type', 'application/json');
+  response.appendHeader('Access-Control-Allow-Origin', '*');
+
   const frClient = require("twilio")(process.env.FRONTLINE_ACCOUNT_SID, process.env.FRONTLINE_AUTH_TOKEN);
   const systemParticipantIdentity = `NotifyAgent.${event.WorkerName}`;
   const conversations_helpers = require(Runtime.getFunctions()['helpers/conversations'].path)(context, event);
   const taskrouter_helpers = require(Runtime.getFunctions()['helpers/taskrouter'].path)(context, event);
-  const response = {};
+
+  const responseObj = {};
 
   async function createSystemConversation() {
     const conversation = await frClient.conversations
@@ -26,9 +31,9 @@ exports.handler = async function (context, event, callback) {
   // don't notify worker if already online.
   const worker = await taskrouter_helpers.getWorkerByIdentity(frClient, context.FRONTLINE_WORKSPACE_SID, event.WorkerName);
   if(worker.activityName == context.FRONTLINE_AVAILABLE_STATUS)
-    response.available = true;
+    responseObj.available = true;
 
-  if(event.EventType == "NotifyAgent") {
+  if(!responseObj.available && event.EventType == "NotifyAgent") {
     // get default system conversation to post notifications into.
     const conversation = await getSystemConversation();
     const conversationSid = conversation.conversationSid || conversation.sid;
@@ -53,5 +58,6 @@ exports.handler = async function (context, event, callback) {
     }
   }
 
+  response.setBody(responseObj);
   callback(null, response);
 }

@@ -2,6 +2,7 @@
 *.swo
 assets/imgs
 .DS_Store
+.env.backup
 
 # Twilio Serverless
 .twiliodeployinfo

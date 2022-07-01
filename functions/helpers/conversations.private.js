@@ -68,7 +68,7 @@ module.exports = function (context, event) {
 
     for(const participant of participants) {
       if(!helpers.inArray(convoParticipants, participant.identity)) {
-        let p = await Self.addParticipant(convo, {identity: participant.identity})
+        let p = await Self.addParticipant(frClient, convo, {identity: participant.identity})
       }
     }
   }
