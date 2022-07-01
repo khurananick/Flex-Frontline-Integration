@@ -8,6 +8,7 @@ module.exports = function (context, event) {
    */
   Self.getWorkers = async function(client, wsid, filters={}) {
     filters.limit = 50000;
+    console.log("Looking up TaskRouter Workers.");
     const workers = await client.taskrouter.workspaces(wsid)
                  .workers
                  .list(filters)
@@ -28,6 +29,7 @@ module.exports = function (context, event) {
    * Fetches the list of activities workers can be set to.
    */
   Self.getActivities = async function(client, wsid, filters={}) {
+    console.log("Looking up TaskRouter Activities.");
     const activities = await client.taskrouter.workspaces(wsid)
                  .activities
                  .list(filters)
@@ -50,12 +52,14 @@ module.exports = function (context, event) {
     if(!activity || !activity.sid) return;
     if(worker.activityName == activity.friendlyName) return;
 
+    console.log("Updating TaskRouter Worker Activity.");
     await client.taskrouter.workspaces(wsid)
                .workers(worker.sid)
                .update({activitySid: activity.sid})
   }
 
   Self.updateTaskrouterReservation = async function(client, wsid, tsid, rsid, params) {
+    console.log("Updating TaskRouter Reservation.");
     await client.taskrouter.workspaces(wsid)
       .tasks(tsid)
       .reservations(rsid)
@@ -68,6 +72,7 @@ module.exports = function (context, event) {
   Self.updateFrontlineUserStatus = async function(client, worker) {
     if(!worker.attributes.userSid) return;
 
+    console.log("Updating Frontline Worker Availability.");
     const user = await client.frontlineApi
       .users(worker.attributes.userSid)
       .update({

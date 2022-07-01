@@ -9,6 +9,7 @@ module.exports = function (context, event) {
    * so we can access its attributes
    */
   Self.findConversation = async function() {
+    console.log("Looking up a conversation.");
     const convo = await frClient.conversations.conversations(event.ConversationSid).fetch();
     convo.attributes = JSON.parse(convo.attributes);
     return convo;
@@ -20,6 +21,7 @@ module.exports = function (context, event) {
    * its suppose to correspond to on the Flex project
    */
   Self.createFrontlineConversation = async function(channel, participants) {
+    console.log("Creating a conversation.");
     const convo = await frClient.conversations.conversations
         .create({friendlyName: (channel.attributes?.pre_engagement_data?.friendlyName||channel.friendlyName), attributes: JSON.stringify({
             chatChannelSid: event.ChannelSid,
@@ -29,6 +31,7 @@ module.exports = function (context, event) {
   }
 
   Self.addParticipant = async function(client, convo, attrs) {
+    console.log("Adding a participant to conversation.");
     await client.conversations.conversations(convo.sid)
       .participants
       .create(attrs)
@@ -36,6 +39,7 @@ module.exports = function (context, event) {
   }
 
   Self.getConversationByParticipant = async function(client, identity) {
+    console.log("Looking up conversation by participant.");
     const conversations = await client.conversations
       .participantConversations
       .list({identity: identity, limit: 50});
@@ -47,6 +51,7 @@ module.exports = function (context, event) {
   }
 
   Self.getLastConversationMessage = async function(convo) {
+    console.log("Looking up the last message added to a conversation.");
     const messages = await frClient.conversations
       .conversations(convo.sid)
       .messages
@@ -59,6 +64,7 @@ module.exports = function (context, event) {
    * adds the corresponding participants
    */
   Self.addParticipantsToConversation = async function(convo, participants, channel) {
+    console.log("Looking up participants in a conversation.");
     let convoParticipants = await frClient.conversations.conversations(convo.sid)
                       .participants.list()
 
@@ -99,6 +105,7 @@ module.exports = function (context, event) {
    * Replicates the Message resource from the Channel to the Conversation
    */
   Self.postMessageToFrontlineConversation = async function(convo, participants) {
+    console.log("Posting a message to a conversation.");
     await frClient.conversations.conversations(convo.sid)
                       .messages
                       .create({author: event.From, body: event.Body})
@@ -110,6 +117,7 @@ module.exports = function (context, event) {
    * show up in the agent's frontline interface anymore.
    */
   Self.closeFrontlineConversation = async function(convo) {
+    console.log("Updating a conversation state.");
     await frClient.conversations.conversations(convo.sid)
                     .update({state: "closed"})
                     .catch(function(e) { /* do nothing. */ });

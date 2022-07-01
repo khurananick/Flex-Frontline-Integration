@@ -7,6 +7,7 @@ module.exports = function (context, event) {
    * Looks for the chat channel referenced in the inbound Chat Webhook
    */
   Self.findChatChannel = async function(client, channelSid) {
+    console.log("Looking up a chat channel.");
     const channel = await client.chat.v2.services(context.CHAT_SERVICE_SID)
                 .channels(channelSid||event.ChannelSid)
                 .fetch()
@@ -18,6 +19,7 @@ module.exports = function (context, event) {
    * Fetching participants who are part of the Chat Channel
    */
   Self.fetchChatChannelParticipants = async function(client) {
+    console.log("Looking up participants in the chat channel.");
     return await client.chat.v2.services(event.InstanceSid)
                 .channels(event.ChannelSid)
                 .members
@@ -28,6 +30,7 @@ module.exports = function (context, event) {
    * Updates the attributes of the Channel resource.
    */
   Self.updateChatChannelAttributes = async function(client, params) {
+    console.log("Updating a chat channel.");
     const channel = await client.chat.v2.services(context.CHAT_SERVICE_SID)
       .channels(event.ChannelSid)
       .update({attributes: JSON.stringify(params)});
@@ -41,6 +44,7 @@ module.exports = function (context, event) {
   Self.postMessageToChatChannel = async function(client, convo) {
     if(!convo.attributes.chatChannelSid) return;
 
+    console.log("Posting a message to a chat channel.");
     await client.chat.v2.services(convo.attributes.chatInstanceSid)
       .channels(convo.attributes.chatChannelSid)
       .messages

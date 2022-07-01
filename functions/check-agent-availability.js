@@ -11,6 +11,7 @@ exports.handler = async function (context, event, callback) {
   const responseObj = {};
 
   async function createSystemConversation() {
+    console.log("Creating a system conversation for Frontline Worker notifications.");
     const conversation = await frClient.conversations
       .conversations.create({
         friendlyName: "System",
@@ -48,6 +49,7 @@ exports.handler = async function (context, event, callback) {
 
     // if the last message was longer than the timeoutMinutes ago, we send another message.
     if(!lastMessage || (Date.now() - Date.parse(lastMessage.dateCreated)) > timeoutMinutes) {
+      console.log("Posting a system notification message to worker on Frontline.");
       await frClient.conversations.conversations(conversationSid)
         .messages
         .create({
