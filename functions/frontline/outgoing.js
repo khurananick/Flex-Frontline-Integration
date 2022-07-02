@@ -13,9 +13,9 @@ exports.handler = async function(context, event, callback) {
   const channelName = event.ChannelType;
   const proxyAddress = (function() {
     if (channelName === 'whatsapp') {
-        return context.WHATSAPP_NUMBER;
+        return context.FRONTLINE_WHATSAPP_NUMBER;
     } else {
-        return context.SMS_NUMBER;
+        return context.FRONTLINE_SMS_NUMBER;
     }
   })();
 

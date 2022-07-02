@@ -55,7 +55,7 @@ exports.handler = async function (context, event, callback) {
 
     // create and map corresponding Conversation if not exists
     if(!chat_helpers.channelHasConversationMapped(channel)) {
-      convo = await conversations_helpers.createFrontlineConversation(channel, participants);
+      convo = await conversations_helpers.createFrontlineConversation(channel);
       channel.attributes.ConversationSid = convo.sid;
       channel.attributes.ConversationServiceSid = convo.chatServiceSid;
       channel = await chat_helpers.updateChatChannelAttributes(client, channel.attributes);
@@ -96,7 +96,6 @@ exports.handler = async function (context, event, callback) {
         if(!chat_helpers.channelHasAgent(participants))
           await conversations_helpers.closeFrontlineConversation(convo);
     }
-
     callback(null, response);
   }
 

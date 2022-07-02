@@ -29,7 +29,7 @@ const baseurl = process.env.npm_config_route;
       .webhooks()
       .update({
          postWebhookUrl: `${baseurl}/frontline-to-chat`,
-         filters: ['onConversationUpdated','onConversationStateUpdated','onMessageAdded'],
+         filters: ['onConversationAdded', 'onConversationUpdated','onConversationStateUpdated','onMessageAdded'],
          method: 'POST'
        })
 })();

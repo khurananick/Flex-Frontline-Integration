@@ -56,4 +56,10 @@ exports.handler = async function (context, event, callback) {
       callback(null, response);
     }
   }
+
+
+  if(event.EventType == "onConversationAdded") {
+    const participants = await conversations_helpers.fetchConversationParticipants();
+    console.log(participants);
+  }
 }

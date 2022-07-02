@@ -8,11 +8,21 @@ module.exports = function (context, event) {
    * Look for the Conversation referenced in the inbound Conversation Webhook
    * so we can access its attributes
    */
-  Self.findConversation = async function() {
+  Self.findConversation = async function(conversationSid) {
     console.log("Looking up a conversation.");
-    const convo = await frClient.conversations.conversations(event.ConversationSid).fetch();
+    const convo = await frClient.conversations
+      .conversations(conversationSid||event.ConversationSid)
+      .fetch();
     convo.attributes = JSON.parse(convo.attributes);
     return convo;
+  }
+
+  Self.fetchConversationParticipants = async function() {
+    const participants = await frClient.conversations
+      .conversations(event.ConversationSid)
+      .participants
+      .list();
+    return participants;
   }
 
   /*
@@ -20,13 +30,20 @@ module.exports = function (context, event) {
    * and sets the ChannelSid and InstanceSid of the Channel
    * its suppose to correspond to on the Flex project
    */
-  Self.createFrontlineConversation = async function(channel, participants) {
+  Self.createFrontlineConversation = async function(channel, params={}) {
     console.log("Creating a conversation.");
     const convo = await frClient.conversations.conversations
         .create({friendlyName: (channel.attributes?.pre_engagement_data?.friendlyName||channel.friendlyName), attributes: JSON.stringify({
-            chatChannelSid: event.ChannelSid,
-            chatInstanceSid: event.InstanceSid
+            chatChannelSid: params.ChannelSid||event.ChannelSid,
+            chatInstanceSid: params.InstanceSid||event.InstanceSid
         })});
+    return convo;
+  }
+
+  Self.updateConversation = async function(client, sid, attributes) {
+    const convo = await client.conversations
+      .conversations(sid)
+      .update({attributes: JSON.stringify(attributes)})
     return convo;
   }
 
