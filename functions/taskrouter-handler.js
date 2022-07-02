@@ -38,17 +38,23 @@ exports.handler = async function (context, event, callback) {
   }
 
   else if(event.EventType == 'reservation.accepted') {
-    const ChannelSid = JSON.parse(event.TaskAttributes).channelSid;
-    let channel = await chat_helpers.findChatChannel(client, ChannelSid, context.CHAT_SERVICE_SID);
-    const participants = await chat_helpers.fetchChatChannelParticipants(client, channel.serviceSid, channel.sid);
-    if(chat_helpers.channelHasConversationMapped(channel)) {
-      if(chat_helpers.channelHasAgent(participants)) {
+    setTimeout(async function() {
+      // running this on a delay so the api has time to create channel, participants and stuff
+      const ChannelSid = JSON.parse(event.TaskAttributes).channelSid;
+      let channel = await chat_helpers.findChatChannel(client, ChannelSid, context.CHAT_SERVICE_SID);
+      const participants = await chat_helpers.fetchChatChannelParticipants(client, channel.serviceSid, channel.sid);
+
+      if(!chat_helpers.channelHasAgent(participants)) {
+        await chat_helpers.addChannelParticipant(client, channel.serviceSid, channel.sid, event.WorkerName, {member_type:'agent'})
+      }
+
+      if(chat_helpers.channelHasConversationMapped(channel)) {
         const convo = {
           sid: channel.attributes.ConversationSid
         };
         await conversations_helpers.addParticipantsToConversation(frClient, convo, participants, channel);
       }
-    }
+    }, 3000);
   }
 
   /*

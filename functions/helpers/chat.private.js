@@ -26,6 +26,17 @@ module.exports = function () {
                 .list({limit: 1000})
   }
 
+  Self.addChannelParticipant = async function(client, InstanceSid, ChannelSid, identity, attributes) {
+    const mem = await client.chat.v2.services(InstanceSid)
+                .channels(ChannelSid)
+                .members
+                .create({
+                  identity: identity,
+                  attributes: JSON.stringify(attributes)
+                })
+    return mem;
+  }
+
   /*
    * Updates the attributes of the Channel resource.
    */
