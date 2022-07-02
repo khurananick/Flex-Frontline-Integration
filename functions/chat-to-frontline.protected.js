@@ -96,7 +96,9 @@ exports.handler = async function (context, event, callback) {
         if(!chat_helpers.channelHasAgent(participants))
           await conversations_helpers.closeFrontlineConversation(convo);
     }
+
+    callback(null, response);
   }
 
-  callback(null, response);
+  // don't call cllback here or the retrySync will not have enough time to finish
 }
