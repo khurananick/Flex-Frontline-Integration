@@ -90,7 +90,7 @@ module.exports = function (context, event) {
    * we'll give it a couple of seconds and try again
    */
   Self.retrySync = async function(client, chat_helpers, convo, participants, channel) {
-    const delay = 3500;
+    const delay = 2500;
     console.log("Going to retry in: ", delay);
     setTimeout(async function() {
       const participants = await chat_helpers.fetchChatChannelParticipants(client);
