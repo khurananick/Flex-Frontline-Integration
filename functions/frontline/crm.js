@@ -1,3 +1,15 @@
+function objToFormattedDetailsText(attributes) {
+  const obj = { title: "Details", content: "" };
+  for(let i in attributes) {
+    if(typeof attributes[i] == "object")
+      for(let j in attributes[i])
+        obj.content += `${i}/${j}:\n ${JSON.stringify(attributes[i][j])}\n\n`
+    else
+      obj.content += `${i}:\n ${JSON.stringify(attributes[i])}\n\n`
+  }
+  return obj;
+}
+
 exports.handler = async function (context, event, callback) {
   const response = new Twilio.Response();
   response.appendHeader('Content-Type', 'application/json');
@@ -16,25 +28,23 @@ exports.handler = async function (context, event, callback) {
     const customer = JSON.parse(event.CustomerId);
     const client = context.getTwilioClient();
     const channel = await chat_helpers.findChatChannel(client, customer.c);
+    const phoneNumber = channel.attributes.pre_engagement_data?.phoneNumber;
+    const friendlyName = channel.attributes.pre_engagement_data?.friendlyName || channel.friendlyName || "User";
     const data = {
       objects: {
         customer: {
-          display_name: channel.attributes.pre_engagement_data.friendlyName,
+          display_name: friendlyName,
           customer_id: event.CustomerId,
-          channels: [{ type: "sms", "value": channel.attributes.pre_engagement_data.phoneNumber}],
-          details: (function() {
-            const obj = {
-              title: "Details",
-              content: ""
-            };
-            for(let i in channel.attributes) {
-              obj.content += `${i}:\n ${JSON.stringify(channel.attributes[i])}\n\n`
-            }
-            return obj;
-          })()
+          channels: [],
+          details: objToFormattedDetailsText(channel.attributes)
         }
       }
     }
+    if(phoneNumber)
+      data.objects.customer.channels.push({
+        type: "sms",
+        value: channel.attributes.pre_engagement_data?.phoneNumber
+      })
 
     response.setBody(data);
     return callback(null, response)
