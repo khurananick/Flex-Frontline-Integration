@@ -10,6 +10,23 @@ function objToFormattedDetailsText(attributes) {
   return obj;
 }
 
+function extractPhoneNumber(channel) {
+  const phoneNumber = channel.attributes.pre_engagement_data?.phoneNumber;
+  if(!phoneNumber) {
+    if(channel.attributes.from.match(/^\+\d+$/)) {
+      return channel.attributes.from;
+    }
+    else if(channel.attributes.serviceNumber) {
+      if(channel.attributes.serviceNumber.match("sms_")) {
+        if(channel.friendlyName.match(/^\+\d+$/)) {
+          return channel.friendlyName;
+        }
+      }
+    }
+  }
+  return phoneNumber;
+}
+
 exports.handler = async function (context, event, callback) {
   const response = new Twilio.Response();
   response.appendHeader('Content-Type', 'application/json');
@@ -28,7 +45,7 @@ exports.handler = async function (context, event, callback) {
     const customer = JSON.parse(event.CustomerId);
     const client = context.getTwilioClient();
     const channel = await chat_helpers.findChatChannel(client, customer.c);
-    const phoneNumber = channel.attributes.pre_engagement_data?.phoneNumber;
+    const phoneNumber = extractPhoneNumber(channel);
     const friendlyName = channel.attributes.pre_engagement_data?.friendlyName || channel.friendlyName || "User";
     const data = {
       objects: {
@@ -41,10 +58,7 @@ exports.handler = async function (context, event, callback) {
       }
     }
     if(phoneNumber)
-      data.objects.customer.channels.push({
-        type: "sms",
-        value: channel.attributes.pre_engagement_data?.phoneNumber
-      })
+      data.objects.customer.channels.push({ type: "sms", value: phoneNumber })
 
     response.setBody(data);
     return callback(null, response)
