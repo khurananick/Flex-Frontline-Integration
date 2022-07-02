@@ -33,9 +33,12 @@ exports.handler = async function (context, event, callback) {
      * flag to check if the message was posted as a replication of the Conversation object
      * and, if so, ignore this webhook.
      */
-    if(event.Attributes)
-      if(JSON.parse(event.Attributes).AddedViaConversationWebhook)
+    if(event.Attributes) {
+      if(JSON.parse(event.Attributes).AddedViaConversationWebhook) {
+        console.log('Ignorning API event: AddedViaConversationWebhook');
         return;
+      }
+    }
   }
 
   const conversations_helpers = require(Runtime.getFunctions()['helpers/conversations'].path)();
