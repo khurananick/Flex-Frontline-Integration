@@ -94,9 +94,11 @@ exports.handler = async function (context, event, callback) {
     // post this Message resource to the Conversation
     await conversations_helpers.postMessageToFrontlineConversation(frClient, convo, participants, event.From, event.Body);
 
+    /* DONT THINK THIS IS NEEDED REMOVE IF NO BUGS FOUND
     // retry if no agent.
     if(!chat_helpers.channelHasAgent(participants))
       await conversations_helpers.retrySync(client, frClient, chat_helpers, convo, participants, channel);
+   */
   }
 
   /*

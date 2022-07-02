@@ -1,5 +1,5 @@
 exports.handler = async function (context, event, callback) {
-  console.log('taskrouter-handler.js', event.EventType);
+//  console.log('taskrouter-handler.js', event.EventType);
 
   const response = new Twilio.Response();
   response.appendHeader('Content-Type', 'application/json');

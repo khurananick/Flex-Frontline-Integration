@@ -17,7 +17,7 @@ module.exports = function () {
   }
 
   Self.fetchConversationParticipants = async function(frClient, ConversationSid) {
-    console.log('Looking up participants in a conversation');
+    console.log('Looking up participants in a conversation.');
     const participants = await frClient.conversations
       .conversations(ConversationSid)
       .participants
@@ -82,7 +82,6 @@ module.exports = function () {
    * adds the corresponding participants
    */
   Self.addParticipantsToConversation = async function(frClient, convo, participants, channel) {
-    console.log("Looking up participants in a conversation.");
     let convoParticipants = await Self.fetchConversationParticipants(frClient, convo.sid)
 
     convoParticipants = convoParticipants.map(function(i) {
