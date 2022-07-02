@@ -8,6 +8,7 @@ const baseurl = process.env.npm_config_route;
   await client.chat.v2.services(process.env.CHAT_SERVICE_SID)
       .update({
         postWebhookUrl: `${baseurl}/chat-to-frontline`,
+        webhookFilters: ['onMessageSent','onChannelUpdated','onChannelDestroyed','onMemberRemoved'],
         webhookMethod: "POST"
       })
 })();
@@ -16,8 +17,10 @@ const baseurl = process.env.npm_config_route;
   console.log("Setting Flex TaskRouter Webhook.");
   await client.taskrouter.workspaces(process.env.WORKSPACE_SID)
       .update({
-         eventCallbackUrl: `${baseurl}/taskrouter-handler`
+         eventCallbackUrl: `${baseurl}/taskrouter-handler`,
+         eventsFilter: 'reservation.created,reservation.accepted,worker.activity.update'
        })
+       .catch(function(e) { console.log(e); });
 })();
 
 (async function deployFrontlineToChatWebhook() {
@@ -26,6 +29,7 @@ const baseurl = process.env.npm_config_route;
       .webhooks()
       .update({
          postWebhookUrl: `${baseurl}/frontline-to-chat`,
+         filters: ['onConversationUpdated','onConversationStateUpdated','onMessageAdded'],
          method: 'POST'
        })
 })();
@@ -36,5 +40,6 @@ const baseurl = process.env.npm_config_route;
       .update({
          eventCallbackUrl: `${baseurl}/taskrouter-handler`
        })
+      .catch(function(e) { console.log(e); });
 })();
 
