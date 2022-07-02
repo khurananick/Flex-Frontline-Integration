@@ -27,6 +27,7 @@ module.exports = function () {
   }
 
   Self.addChannelParticipant = async function(client, InstanceSid, ChannelSid, identity, attributes) {
+    console.log('Adding a member to an existing channel');
     const mem = await client.chat.v2.services(InstanceSid)
                 .channels(ChannelSid)
                 .members

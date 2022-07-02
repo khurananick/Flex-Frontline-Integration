@@ -17,6 +17,7 @@ module.exports = function () {
   }
 
   Self.fetchConversationParticipants = async function(frClient, ConversationSid) {
+    console.log('Looking up participants in a conversation');
     const participants = await frClient.conversations
       .conversations(ConversationSid)
       .participants
@@ -40,6 +41,7 @@ module.exports = function () {
   }
 
   Self.updateConversation = async function(client, sid, attributes) {
+    console.log('updating a conversation');
     const convo = await client.conversations
       .conversations(sid)
       .update({attributes: JSON.stringify(attributes)})

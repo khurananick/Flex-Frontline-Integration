@@ -42,8 +42,9 @@ exports.handler = async function (context, event, callback) {
    */
   if(event.EventType == "onConversationStateUpdated") {
     if(event.StateTo == "closed") {
-      const channel = await chat_helpers.findChatChannel(client, convo.attributes.chatChannelSid, convo.attributes.chatInstanceSid);
+      if(!convo.attributes.chatChannelSid) return;
 
+      const channel = await chat_helpers.findChatChannel(client, convo.attributes.chatChannelSid, convo.attributes.chatInstanceSid);
       const res = await taskrouter_helpers.updateUncompleteTasksToCompleted(
         client,
         channel.attributes.WorkspaceSid,
@@ -57,6 +58,5 @@ exports.handler = async function (context, event, callback) {
 
   if(event.EventType == "onConversationAdded") {
     const participants = await conversations_helpers.fetchConversationParticipants(frClient, event.ConversationSid);
-    console.log(participants);
   }
 }

@@ -1,5 +1,5 @@
 exports.handler = async function(context, event, callback) {
-  console.log('frontline/outgoing.js', event.EventType);
+  console.log('frontline/outgoing.js', event.Location);
 
   const response = new Twilio.Response();
   response.appendHeader('Content-Type', 'application/json');

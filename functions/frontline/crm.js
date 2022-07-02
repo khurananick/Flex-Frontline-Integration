@@ -28,7 +28,7 @@ function extractPhoneNumber(channel) {
 }
 
 exports.handler = async function (context, event, callback) {
-  console.log('frontline/crm.js', event.EventType);
+  console.log('frontline/crm.js', event.Location);
 
   const response = new Twilio.Response();
   response.appendHeader('Content-Type', 'application/json');
