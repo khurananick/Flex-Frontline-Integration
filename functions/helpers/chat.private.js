@@ -75,6 +75,10 @@ module.exports = function () {
     return channel.attributes.ConversationSid
   }
 
+  Self.channelHasTaskAttributesMapped = function(channel) {
+    return channel.attributes.TaskSid;
+  }
+
   /*
    * By default Chat comes with a webhook that should be called on certain events.
    * We replace the default webhook with our custom chat-to-frontline endpoint

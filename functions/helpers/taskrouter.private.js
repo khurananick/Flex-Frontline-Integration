@@ -120,5 +120,13 @@ module.exports = function () {
     await Self.updateFrontlineUserStatus(client, worker, context, event);
   }
 
+  Self.findTasksByFilters = async function(client, wsid, filters) {
+    console.log("Looking up tasks");
+    const tasks = await client.taskrouter.workspaces(wsid)
+      .tasks
+      .list(filters);
+    return tasks;
+  }
+
   return Self;
 }

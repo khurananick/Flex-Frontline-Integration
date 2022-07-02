@@ -5,6 +5,8 @@
  * API in the Frontline Project.
  */
 exports.handler = async function (context, event, callback) {
+  console.log('chat-to-frontline.js', event.EventType);
+
   const response = new Twilio.Response();
   response.appendHeader('Content-Type', 'application/json');
   response.appendHeader('Access-Control-Allow-Origin', '*');
@@ -37,6 +39,7 @@ exports.handler = async function (context, event, callback) {
   }
 
   const conversations_helpers = require(Runtime.getFunctions()['helpers/conversations'].path)();
+  const taskrouter_helpers = require(Runtime.getFunctions()['helpers/taskrouter'].path)();
 
   let convo;
   const client = context.getTwilioClient();
@@ -57,21 +60,22 @@ exports.handler = async function (context, event, callback) {
     // create and map corresponding Conversation if not exists
     if(!chat_helpers.channelHasConversationMapped(channel)) {
       convo = await conversations_helpers.createFrontlineConversation(frClient, channel, event.InstanceSid, event.ChannelSid);
-
-      const tasks = await client.taskrouter.workspaces(context.WORKSPACE_SID)
-        .tasks
-        .list({
-           evaluateTaskAttributes: `channelSid == "${channel.sid}"`,
-           limit: 1
-         });
-      const task = tasks[0];
-
       channel.attributes.ConversationSid = convo.sid;
       channel.attributes.ConversationServiceSid = convo.chatServiceSid;
-      channel.attributes.WorkspaceSid = task.workspaceSid;
-      channel.attributes.TaskSid = task.sid;
-      channel = await chat_helpers.updateChatChannelAttributes(client, channel.attributes, channel.sid, channel.serviceSid);
 
+      // while we're mapping the convo we can also map
+      // to the task in taskrouter so the task
+      // can be closed later when needed.
+      if(!chat_helpers.channelHasTaskAttributesMapped(channel)) {
+        const tasks = await taskrouter_helpers.findTasksByFilters(client, context.WORKSPACE_SID, {
+         evaluateTaskAttributes: `channelSid == "${channel.sid}"`,
+         limit: 1
+        });
+        channel.attributes.WorkspaceSid = tasks[0].workspaceSid;
+        channel.attributes.TaskSid = tasks[0].sid;
+      }
+
+      channel = await chat_helpers.updateChatChannelAttributes(client, channel.attributes, channel.sid, channel.serviceSid);
     }
     // set a generic convo object if Corresponding conversation already exists
     // so we can use the same syntax to reference the sid later.
