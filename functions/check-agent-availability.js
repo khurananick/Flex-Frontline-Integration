@@ -5,8 +5,8 @@ exports.handler = async function (context, event, callback) {
 
   const frClient = require("twilio")(process.env.FRONTLINE_ACCOUNT_SID, process.env.FRONTLINE_AUTH_TOKEN);
   const systemParticipantIdentity = `NotifyAgent.${event.WorkerName}`;
-  const conversations_helpers = require(Runtime.getFunctions()['helpers/conversations'].path)(context, event);
-  const taskrouter_helpers = require(Runtime.getFunctions()['helpers/taskrouter'].path)(context, event);
+  const conversations_helpers = require(Runtime.getFunctions()['helpers/conversations'].path)();
+  const taskrouter_helpers = require(Runtime.getFunctions()['helpers/taskrouter'].path)();
 
   const responseObj = {};
 
@@ -40,7 +40,7 @@ exports.handler = async function (context, event, callback) {
     const conversationSid = conversation.conversationSid || conversation.sid;
 
     // get the last message posted into the system conversation.
-    const lastMessage = await conversations_helpers.getLastConversationMessage({
+    const lastMessage = await conversations_helpers.getLastConversationMessage(frClient, {
       sid: conversationSid
     });
 

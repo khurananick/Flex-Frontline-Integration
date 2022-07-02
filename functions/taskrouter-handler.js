@@ -4,8 +4,8 @@ exports.handler = async function (context, event, callback) {
   response.appendHeader('Access-Control-Allow-Origin', '*');
 
   let client;
-  const taskrouter_helpers = require(Runtime.getFunctions()['helpers/taskrouter'].path)(context, event);
-  const chat_helpers = require(Runtime.getFunctions()['helpers/chat'].path)(context, event);
+  const taskrouter_helpers = require(Runtime.getFunctions()['helpers/taskrouter'].path)();
+  const chat_helpers = require(Runtime.getFunctions()['helpers/chat'].path)();
 
   /*
    * Optional function allowing you to set a callback URL
@@ -30,19 +30,23 @@ exports.handler = async function (context, event, callback) {
       event.ResourceSid,
       {reservationStatus: 'accepted'}
     );
+
+    callback(null, response);
   }
 
-  if(event.EventType == 'reservation.accepted') {
+  else if(event.EventType == 'reservation.accepted') {
     client = context.getTwilioClient();
 
-    event.ChannelSid = JSON.parse(event.TaskAttributes).channelSid;
+    setTimeout(async function() {
+      const ChannelSid = JSON.parse(event.TaskAttributes).channelSid;
 
-    const channel = await chat_helpers.findChatChannel(client);
-    channel.attributes.WorkspaceSid = event.WorkspaceSid;
-    channel.attributes.TaskSid = event.TaskSid;
-    channel.attributes.ResourceSid = event.ResourceSid;
+      const channel = await chat_helpers.findChatChannel(client, ChannelSid, context.CHAT_SERVICE_SID);
+      channel.attributes.WorkspaceSid = event.WorkspaceSid;
+      channel.attributes.TaskSid = event.TaskSid;
+      channel.attributes.ResourceSid = event.ResourceSid;
 
-    await chat_helpers.updateChatChannelAttributes(client, channel.attributes);
+      const updatedChannel = await chat_helpers.updateChatChannelAttributes(client, channel.attributes, channel.sid, channel.serviceSid);
+    }, 2000);
   }
 
   /*
@@ -50,20 +54,23 @@ exports.handler = async function (context, event, callback) {
    * in the Frontline application and updates the Flex worker
    * to the same status.
    */
-  if(event.EventType == 'worker.activity.update') {
+  else if(event.EventType == 'worker.activity.update') {
     let client, wsid;
 
     if(event.AccountSid == context.FRONTLINE_ACCOUNT_SID) {
       client = context.getTwilioClient();
       wsid = context.WORKSPACE_SID;
-      await taskrouter_helpers.syncWorkerActivity(client, wsid);
+      await taskrouter_helpers.syncWorkerActivity(client, wsid, context, event);
     }
     else if(event.AccountSid == context.ACCOUNT_SID) {
       client = require("twilio")(context.FRONTLINE_ACCOUNT_SID, context.FRONTLINE_AUTH_TOKEN);
       wsid = context.FRONTLINE_WORKSPACE_SID;
-      await taskrouter_helpers.syncWorkerActivity(client, wsid);
+      await taskrouter_helpers.syncWorkerActivity(client, wsid, context, event);
     }
+
+    callback(null, response);
   }
 
-  callback(null, callback);
+  else callback(null, response);
+  // doing this as an else so that the above setTimeout doesn't fail
 }

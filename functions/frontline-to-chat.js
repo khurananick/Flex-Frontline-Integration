@@ -17,18 +17,18 @@ exports.handler = async function (context, event, callback) {
    * this endpoint for the PRE webhook.
    */
   const client = context.getTwilioClient();
-  const chat_helpers = require(Runtime.getFunctions()['helpers/chat'].path)(context, event);
-  const conversations_helpers = require(Runtime.getFunctions()['helpers/conversations'].path)(context, event);
-  const taskrouter_helpers = require(Runtime.getFunctions()['helpers/taskrouter'].path)(context, event);
-  const convo = await conversations_helpers.findConversation();
+  const frClient = require("twilio")(context.FRONTLINE_ACCOUNT_SID, context.FRONTLINE_AUTH_TOKEN);
+  const chat_helpers = require(Runtime.getFunctions()['helpers/chat'].path)();
+  const conversations_helpers = require(Runtime.getFunctions()['helpers/conversations'].path)();
+  const taskrouter_helpers = require(Runtime.getFunctions()['helpers/taskrouter'].path)();
+  const convo = await conversations_helpers.findConversation(frClient, event.ConversationSid);
 
   if(event.EventType == "onMessageAdded") {
-    await chat_helpers.postMessageToChatChannel(client, convo)
-
-    const channel = await chat_helpers.findChatChannel(client, convo.attributes.chatChannelSid);
+    await chat_helpers.postMessageToChatChannel(client, convo, event.ClientIdentity, event.Body)
+    const channel = await chat_helpers.findChatChannel(client, convo.attributes.chatChannelSid, convo.attributes.chatInstanceSid);
     if(!channel.attributes.ConversationSid) {
       channel.attributes.ConversationSid = event.ConversationSid;
-      await chat_helpers.updateChatChannelAttributes(client, channel.attributes, convo.attributes.chatChannelSid);
+      await chat_helpers.updateChatChannelAttributes(client, channel.attributes, convo.attributes.chatChannelSid, convo.attributes.chatInstanceSid);
     }
   }
 
@@ -38,10 +38,7 @@ exports.handler = async function (context, event, callback) {
    */
   if(event.EventType == "onConversationStateUpdated") {
     if(event.StateTo == "closed") {
-      event.ChannelSid = convo.attributes.chatChannelSid;
-      if(!event.ChannelSid) return;
-
-      const channel = await chat_helpers.findChatChannel(client);
+      const channel = await chat_helpers.findChatChannel(client, convo.attributes.chatChannelSid, convo.attributes.chatInstanceSid);
 
       await taskrouter_helpers.updateTaskrouterReservation(
         client,
@@ -65,7 +62,7 @@ exports.handler = async function (context, event, callback) {
 
 
   if(event.EventType == "onConversationAdded") {
-    const participants = await conversations_helpers.fetchConversationParticipants();
+    const participants = await conversations_helpers.fetchConversationParticipants(frClient, event.ConversationSid);
     console.log(participants);
   }
 }

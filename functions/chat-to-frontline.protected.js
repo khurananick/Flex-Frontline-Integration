@@ -9,8 +9,8 @@ exports.handler = async function (context, event, callback) {
   response.appendHeader('Content-Type', 'application/json');
   response.appendHeader('Access-Control-Allow-Origin', '*');
 
-  const helpers = require(Runtime.getFunctions()['helpers/functions'].path)(context, event);
-  const chat_helpers = require(Runtime.getFunctions()['helpers/chat'].path)(context, event);
+  const helpers = require(Runtime.getFunctions()['helpers/functions'].path)();
+  const chat_helpers = require(Runtime.getFunctions()['helpers/chat'].path)();
 
   /*
    * By default, the Programmable Chat is configered with a webhook callback.
@@ -22,7 +22,7 @@ exports.handler = async function (context, event, callback) {
    * the default webhook. You can add others if you see fit.
    */
   if(helpers.inArray(["onMessageSent", "onChannelUpdated", "onChannelDestroyed"], event.EventType)) {
-    await chat_helpers.replicateDefaultFlexWebhook();
+    await chat_helpers.replicateDefaultFlexWebhook(context, event);
     /*
      * When a message is posted from the Frontline app, it creates a webhook
      * to the frontline-to-chat function, which creates a corresponding Message
@@ -36,10 +36,11 @@ exports.handler = async function (context, event, callback) {
         return;
   }
 
-  const conversations_helpers = require(Runtime.getFunctions()['helpers/conversations'].path)(context, event);
+  const conversations_helpers = require(Runtime.getFunctions()['helpers/conversations'].path)();
 
   let convo;
   const client = context.getTwilioClient();
+  const frClient = require("twilio")(context.FRONTLINE_ACCOUNT_SID, context.FRONTLINE_AUTH_TOKEN);
 
   /*
    * In Programmable Chat each "session" is called a Channel.
@@ -50,15 +51,15 @@ exports.handler = async function (context, event, callback) {
    * then post the Message into the corresponding Conversation
    */
   if(helpers.inArray(["onMessageSent"], event.EventType)) {
-    let channel = await chat_helpers.findChatChannel(client);
-    const participants = await chat_helpers.fetchChatChannelParticipants(client);
+    let channel = await chat_helpers.findChatChannel(client, event.ChannelSid, event.InstanceSid);
+    const participants = await chat_helpers.fetchChatChannelParticipants(client, channel.serviceSid, channel.sid);
 
     // create and map corresponding Conversation if not exists
     if(!chat_helpers.channelHasConversationMapped(channel)) {
-      convo = await conversations_helpers.createFrontlineConversation(channel);
+      convo = await conversations_helpers.createFrontlineConversation(frClient, channel, event.InstanceSid, event.ChannelSid);
       channel.attributes.ConversationSid = convo.sid;
       channel.attributes.ConversationServiceSid = convo.chatServiceSid;
-      channel = await chat_helpers.updateChatChannelAttributes(client, channel.attributes);
+      channel = await chat_helpers.updateChatChannelAttributes(client, channel.attributes, channel.sid, channel.serviceSid);
     }
     // set a generic convo object if Corresponding conversation already exists
     // so we can use the same syntax to reference the sid later.
@@ -69,14 +70,14 @@ exports.handler = async function (context, event, callback) {
     }
 
     // create and map corresponding Participants to the Conversation if not exists
-    await conversations_helpers.addParticipantsToConversation(convo, participants, channel);
+    await conversations_helpers.addParticipantsToConversation(frClient, convo, participants, channel);
 
     // post this Message resource to the Conversation
-    await conversations_helpers.postMessageToFrontlineConversation(convo, participants);
+    await conversations_helpers.postMessageToFrontlineConversation(frClient, convo, participants, event.From, event.Body);
 
     // retry if no agent.
     if(!chat_helpers.channelHasAgent(participants))
-      await conversations_helpers.retrySync(client, chat_helpers, convo, participants, channel);
+      await conversations_helpers.retrySync(client, frClient, chat_helpers, convo, participants, channel);
   }
 
   /*
@@ -86,15 +87,15 @@ exports.handler = async function (context, event, callback) {
    * Conversation by changing the state
    */
   if(helpers.inArray(["onMemberRemoved"], event.EventType)) {
-    let channel = await chat_helpers.findChatChannel(client);
+    let channel = await chat_helpers.findChatChannel(client, event.ChannelSid, event.InstanceSid);
     if(chat_helpers.channelHasConversationMapped(channel)) { // create and map corresponding conversation if not exists
-      const participants = await chat_helpers.fetchChatChannelParticipants(client);
+      const participants = await chat_helpers.fetchChatChannelParticipants(client, event.InstanceSid, event.ChannelSid);
       const convo = {
         sid: channel.attributes.ConversationSid
       };
       if(JSON.parse(event.Attributes).member_type == "agent")
         if(!chat_helpers.channelHasAgent(participants))
-          await conversations_helpers.closeFrontlineConversation(convo);
+          await conversations_helpers.closeFrontlineConversation(frClient, convo);
     }
     callback(null, response);
   }

@@ -1,25 +1,24 @@
-const helpers = require(Runtime.getFunctions()['helpers/functions'].path)();
+module.exports = function () {
+  const helpers = require(Runtime.getFunctions()['helpers/functions'].path)();
 
-module.exports = function (context, event) {
   const Self = {};
-  const frClient = require('twilio')(context.FRONTLINE_ACCOUNT_SID, context.FRONTLINE_AUTH_TOKEN);
 
   /*
    * Look for the Conversation referenced in the inbound Conversation Webhook
    * so we can access its attributes
    */
-  Self.findConversation = async function(conversationSid) {
+  Self.findConversation = async function(frClient, conversationSid) {
     console.log("Looking up a conversation.");
     const convo = await frClient.conversations
-      .conversations(conversationSid||event.ConversationSid)
+      .conversations(conversationSid)
       .fetch();
     convo.attributes = JSON.parse(convo.attributes);
     return convo;
   }
 
-  Self.fetchConversationParticipants = async function() {
+  Self.fetchConversationParticipants = async function(frClient, ConversationSid) {
     const participants = await frClient.conversations
-      .conversations(event.ConversationSid)
+      .conversations(ConversationSid)
       .participants
       .list();
     return participants;
@@ -30,12 +29,12 @@ module.exports = function (context, event) {
    * and sets the ChannelSid and InstanceSid of the Channel
    * its suppose to correspond to on the Flex project
    */
-  Self.createFrontlineConversation = async function(channel, params={}) {
+  Self.createFrontlineConversation = async function(frClient, channel, InstanceSid, ChannelSid) {
     console.log("Creating a conversation.");
     const convo = await frClient.conversations.conversations
         .create({friendlyName: (channel.attributes?.pre_engagement_data?.friendlyName||channel.friendlyName), attributes: JSON.stringify({
-            chatChannelSid: params.ChannelSid||event.ChannelSid,
-            chatInstanceSid: params.InstanceSid||event.InstanceSid
+            chatChannelSid: ChannelSid,
+            chatInstanceSid: InstanceSid
         })});
     return convo;
   }
@@ -67,7 +66,7 @@ module.exports = function (context, event) {
     }
   }
 
-  Self.getLastConversationMessage = async function(convo) {
+  Self.getLastConversationMessage = async function(frClient, convo) {
     console.log("Looking up the last message added to a conversation.");
     const messages = await frClient.conversations
       .conversations(convo.sid)
@@ -80,10 +79,9 @@ module.exports = function (context, event) {
    * If the participant doesn't already exist in the Conversation
    * adds the corresponding participants
    */
-  Self.addParticipantsToConversation = async function(convo, participants, channel) {
+  Self.addParticipantsToConversation = async function(frClient, convo, participants, channel) {
     console.log("Looking up participants in a conversation.");
-    let convoParticipants = await frClient.conversations.conversations(convo.sid)
-                      .participants.list()
+    let convoParticipants = await Self.fetchConversationParticipants(frClient, convo.sid)
 
     convoParticipants = convoParticipants.map(function(i) {
                           return i.identity
@@ -106,13 +104,13 @@ module.exports = function (context, event) {
    * In case a message is fired but agent isn't available on time,
    * we'll give it a couple of seconds and try again
    */
-  Self.retrySync = async function(client, chat_helpers, convo, participants, channel) {
+  Self.retrySync = async function(client, frClient, chat_helpers, convo, participants, channel) {
     const delay = 2500;
     console.log("Going to retry in: ", delay);
     setTimeout(async function() {
-      const participants = await chat_helpers.fetchChatChannelParticipants(client);
+      const participants = await chat_helpers.fetchChatChannelParticipants(client, channel.serviceSid, channel.sid);
       if(chat_helpers.channelHasAgent(participants)) {
-        await Self.addParticipantsToConversation(convo, participants, channel);
+        await Self.addParticipantsToConversation(frClient, convo, participants, channel);
         console.log("Added agent on retry.");
       }
     }, delay);
@@ -121,11 +119,11 @@ module.exports = function (context, event) {
   /*
    * Replicates the Message resource from the Channel to the Conversation
    */
-  Self.postMessageToFrontlineConversation = async function(convo, participants) {
+  Self.postMessageToFrontlineConversation = async function(frClient, convo, participants, From, Body) {
     console.log("Posting a message to a conversation.");
     await frClient.conversations.conversations(convo.sid)
                       .messages
-                      .create({author: event.From, body: event.Body})
+                      .create({author: From, body: Body})
                       .catch(function(e) { /* do nothing */ })
   }
 
@@ -133,7 +131,7 @@ module.exports = function (context, event) {
    * Setting the state of the Conversation as closed so it doesn't
    * show up in the agent's frontline interface anymore.
    */
-  Self.closeFrontlineConversation = async function(convo) {
+  Self.closeFrontlineConversation = async function(frClient, convo) {
     console.log("Updating a conversation state.");
     await frClient.conversations.conversations(convo.sid)
                     .update({state: "closed"})

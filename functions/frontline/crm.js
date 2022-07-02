@@ -32,19 +32,19 @@ exports.handler = async function (context, event, callback) {
   response.appendHeader('Content-Type', 'application/json');
   response.appendHeader('Access-Control-Allow-Origin', '*');
 
-  const helpers = require(Runtime.getFunctions()['helpers/functions'].path)(context, event);
+  const helpers = require(Runtime.getFunctions()['helpers/functions'].path)();
 
-  if(!helpers.validateXTwilioSignature(context.FRONTLINE_AUTH_TOKEN)) {
+  if(!helpers.validateXTwilioSignature(context.FRONTLINE_AUTH_TOKEN, context, event)) {
     response.setStatusCode(500);
     return callback(null, response);
   }
 
-  const chat_helpers = require(Runtime.getFunctions()['helpers/chat'].path)(context, event);
+  const chat_helpers = require(Runtime.getFunctions()['helpers/chat'].path)();
 
   if(helpers.isJson(event.CustomerId) && event.Location == 'GetCustomerDetailsByCustomerId') {
     const customer = JSON.parse(event.CustomerId);
     const client = context.getTwilioClient();
-    const channel = await chat_helpers.findChatChannel(client, customer.c);
+    const channel = await chat_helpers.findChatChannel(client, customer.c, context.CHAT_SERVICE_SID);
     const phoneNumber = extractPhoneNumber(channel);
     const friendlyName = channel.attributes.pre_engagement_data?.friendlyName || channel.friendlyName || "User";
     const data = {
@@ -64,7 +64,7 @@ exports.handler = async function (context, event, callback) {
     return callback(null, response)
   }
   else if(context.BACKUP_CRM_ENDPOINT) {
-    const proxy = await helpers.proxyRequest(context.BACKUP_CRM_ENDPOINT);
+    const proxy = await helpers.proxyRequest(context.BACKUP_CRM_ENDPOINT, context, event);
     response.setBody(proxy.data);
     return callback(null, response);
   }

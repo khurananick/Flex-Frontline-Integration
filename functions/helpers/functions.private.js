@@ -1,4 +1,4 @@
-module.exports = function (context, event) {
+module.exports = function () {
   const Self = {};
 
   Self.generateXTwilioSignature = function(url, payload, authToken) {
@@ -10,20 +10,20 @@ module.exports = function (context, event) {
     return signature;
   }
 
-  Self.getServiceUrl = function() {
+  Self.getServiceUrl = function(context, event) {
     if(context.DOMAIN_NAME.match("localhost"))
       return event.request.headers.host || context.DOMAIN_NAME;
     return context.DOMAIN_NAME;
   }
 
-  Self.validateXTwilioSignature = function(authToken) {
+  Self.validateXTwilioSignature = function(authToken, context, event) {
     const client = require('twilio');
 
     const params = Object.assign({}, event);
     delete params.request;
 
     const signature = event.request.headers['x-twilio-signature'];
-    const url = `https://${Self.getServiceUrl()}${context.PATH}`;
+    const url = `https://${Self.getServiceUrl(context, event)}${context.PATH}`;
 
     return client.validateRequest(authToken, signature, url, params);
   }
@@ -45,7 +45,7 @@ module.exports = function (context, event) {
     return false;
   }
 
-  Self.proxyRequest = async function(url) {
+  Self.proxyRequest = async function(url, context, event) {
     // payload to replicate Default Webhook.
     const payload = Object.assign({}, event);
     delete payload.request;

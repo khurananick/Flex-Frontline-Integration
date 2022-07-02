@@ -1,6 +1,6 @@
-const helpers = require(Runtime.getFunctions()['helpers/functions'].path)();
+module.exports = function () {
+  const helpers = require(Runtime.getFunctions()['helpers/functions'].path)();
 
-module.exports = function (context, event) {
   const Self = {};
 
   /*
@@ -69,7 +69,7 @@ module.exports = function (context, event) {
   /*
    * Frontline has a separate activity for worker status which we can set as well.
    */
-  Self.updateFrontlineUserStatus = async function(client, worker) {
+  Self.updateFrontlineUserStatus = async function(client, worker, context, event) {
     if(!worker.attributes.userSid) return;
 
     console.log("Updating Frontline Worker Availability.");
@@ -83,12 +83,12 @@ module.exports = function (context, event) {
   /*
    * Updates the worker's activity to the one set in the current webhook.
    */
-  Self.syncWorkerActivity = async function(client, wsid) {
+  Self.syncWorkerActivity = async function(client, wsid, context, event) {
     const worker = await Self.getWorkerByIdentity(client, wsid, event.WorkerName);
     const activity = await Self.getActivityByName(client, wsid, event.WorkerActivityName);
 
     await Self.setTaskrouterWorkerActivity(client, wsid, worker, activity);
-    await Self.updateFrontlineUserStatus(client, worker);
+    await Self.updateFrontlineUserStatus(client, worker, context, event);
   }
 
   return Self;

@@ -3,9 +3,9 @@ exports.handler = async function (context, event, callback) {
   response.appendHeader('Content-Type', 'application/json');
   response.appendHeader('Access-Control-Allow-Origin', '*');
 
-  const helpers = require(Runtime.getFunctions()['helpers/functions'].path)(context, event);
+  const helpers = require(Runtime.getFunctions()['helpers/functions'].path)();
 
-  if(!helpers.validateXTwilioSignature(context.FRONTLINE_AUTH_TOKEN)) {
+  if(!helpers.validateXTwilioSignature(context.FRONTLINE_AUTH_TOKEN, context, event)) {
     response.setStatusCode(500);
     return callback(null, response);
   }
