@@ -57,9 +57,21 @@ exports.handler = async function (context, event, callback) {
     // create and map corresponding Conversation if not exists
     if(!chat_helpers.channelHasConversationMapped(channel)) {
       convo = await conversations_helpers.createFrontlineConversation(frClient, channel, event.InstanceSid, event.ChannelSid);
+
+      const tasks = await client.taskrouter.workspaces(context.WORKSPACE_SID)
+        .tasks
+        .list({
+           evaluateTaskAttributes: `channelSid == "${channel.sid}"`,
+           limit: 1
+         });
+      const task = tasks[0];
+
       channel.attributes.ConversationSid = convo.sid;
       channel.attributes.ConversationServiceSid = convo.chatServiceSid;
+      channel.attributes.WorkspaceSid = task.workspaceSid;
+      channel.attributes.TaskSid = task.sid;
       channel = await chat_helpers.updateChatChannelAttributes(client, channel.attributes, channel.sid, channel.serviceSid);
+
     }
     // set a generic convo object if Corresponding conversation already exists
     // so we can use the same syntax to reference the sid later.

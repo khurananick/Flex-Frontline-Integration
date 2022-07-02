@@ -23,7 +23,7 @@ exports.handler = async function (context, event, callback) {
     if(!context.AUTO_ACCEPT_TASKS || context.AUTO_ACCEPT_TASKS != 'true') return;
 
     client = context.getTwilioClient();
-    await taskrouter_helpers.updateTaskrouterReservation(
+    await taskrouter_helpers.updateTaskrouterReservationById(
       client,
       event.WorkspaceSid,
       event.TaskSid,
@@ -35,18 +35,7 @@ exports.handler = async function (context, event, callback) {
   }
 
   else if(event.EventType == 'reservation.accepted') {
-    client = context.getTwilioClient();
-
-    setTimeout(async function() {
-      const ChannelSid = JSON.parse(event.TaskAttributes).channelSid;
-
-      const channel = await chat_helpers.findChatChannel(client, ChannelSid, context.CHAT_SERVICE_SID);
-      channel.attributes.WorkspaceSid = event.WorkspaceSid;
-      channel.attributes.TaskSid = event.TaskSid;
-      channel.attributes.ResourceSid = event.ResourceSid;
-
-      const updatedChannel = await chat_helpers.updateChatChannelAttributes(client, channel.attributes, channel.sid, channel.serviceSid);
-    }, 2000);
+    // do nothing.
   }
 
   /*

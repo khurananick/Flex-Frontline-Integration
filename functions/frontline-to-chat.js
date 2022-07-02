@@ -40,22 +40,12 @@ exports.handler = async function (context, event, callback) {
     if(event.StateTo == "closed") {
       const channel = await chat_helpers.findChatChannel(client, convo.attributes.chatChannelSid, convo.attributes.chatInstanceSid);
 
-      await taskrouter_helpers.updateTaskrouterReservation(
+      const res = await taskrouter_helpers.updateUncompleteTasksToCompleted(
         client,
         channel.attributes.WorkspaceSid,
         channel.attributes.TaskSid,
-        channel.attributes.ResourceSid,
-        {reservationStatus: 'wrapping'}
-      );
-
-      await taskrouter_helpers.updateTaskrouterReservation(
-        client,
-        channel.attributes.WorkspaceSid,
-        channel.attributes.TaskSid,
-        channel.attributes.ResourceSid,
         {reservationStatus: 'completed'}
       );
-
       callback(null, response);
     }
   }

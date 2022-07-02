@@ -58,12 +58,41 @@ module.exports = function () {
                .update({activitySid: activity.sid})
   }
 
-  Self.updateTaskrouterReservation = async function(client, wsid, tsid, rsid, params) {
-    console.log("Updating TaskRouter Reservation.");
-    await client.taskrouter.workspaces(wsid)
+  Self.updateTaskrouterReservationById = async function(client, wsid, tsid, rsid, params) {
+    console.log("Updating TaskRouter Reservation By Sid");
+    const res = await client.taskrouter.workspaces(wsid)
       .tasks(tsid)
       .reservations(rsid)
       .update(params)
+    return res;
+  }
+
+  Self.updateTaskrouterReservationByStatus = async function(client, wsid, tsid, status, params) {
+    console.log("Updating TaskRouter Reservation By Status");
+    const reservations =  await client.taskrouter.workspaces(wsid)
+      .tasks(tsid)
+      .reservations
+      .list()
+    for(const reservation of reservations) {
+      if(reservation.reservationStatus == status) {
+        const res = await Self.updateTaskrouterReservationById(client, wsid, tsid, reservation.sid, params);
+        return res;
+      }
+    }
+  }
+
+  Self.updateUncompleteTasksToCompleted = async function(client, wsid, tsid, params) {
+    console.log("Updating Open TaskRouter Reservations To Completed");
+    const reservations =  await client.taskrouter.workspaces(wsid)
+      .tasks(tsid)
+      .reservations
+      .list()
+    for(const reservation of reservations) {
+      if(helpers.inArray(["accepted", "pending", "timeout"], reservation.reservationStatus)) {
+        const res = await Self.updateTaskrouterReservationById(client, wsid, tsid, reservation.sid, params);
+        return res;
+      }
+    }
   }
 
   /*
