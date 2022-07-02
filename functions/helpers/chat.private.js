@@ -29,10 +29,10 @@ module.exports = function (context, event) {
   /*
    * Updates the attributes of the Channel resource.
    */
-  Self.updateChatChannelAttributes = async function(client, params) {
+  Self.updateChatChannelAttributes = async function(client, params, channelSid) {
     console.log("Updating a chat channel.");
     const channel = await client.chat.v2.services(context.CHAT_SERVICE_SID)
-      .channels(event.ChannelSid)
+      .channels(channelSid||event.ChannelSid)
       .update({attributes: JSON.stringify(params)});
     channel.attributes = JSON.parse(channel.attributes);
     return channel;

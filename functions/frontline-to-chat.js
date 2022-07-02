@@ -24,6 +24,12 @@ exports.handler = async function (context, event, callback) {
 
   if(event.EventType == "onMessageAdded") {
     await chat_helpers.postMessageToChatChannel(client, convo)
+
+    const channel = await chat_helpers.findChatChannel(client, convo.attributes.chatChannelSid);
+    if(!channel.attributes.ConversationSid) {
+      channel.attributes.ConversationSid = event.ConversationSid;
+      await chat_helpers.updateChatChannelAttributes(client, channel.attributes, convo.attributes.chatChannelSid);
+    }
   }
 
   /*
