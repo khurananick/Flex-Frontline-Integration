@@ -6,19 +6,25 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "twilio-run",
     "deploy": "twilio-run deploy",
-    "deploy_routes": "node deploy_routes"
+    "deploy_routes": "node scripts/deploy_routes",
+    "test": "node tests/test"
   },
   "dependencies": {
-    "twilio": "^3.56",
     "@twilio/runtime-handler": "1.2.3",
-    "form-data":"2.5.1",
     "axios": "0.26.1",
     "crypto": "1.0.1",
+    "dotenv": "6.2.0",
+    "form-data": "2.5.1",
+    "puppeteer": "^15.3.0",
+    "puppeteer-core": "^15.3.0",
     "qs": "6.10.3",
-    "dotenv":"6.2.0"
+    "twilio": "^3.56"
   },
   "devDependencies": {
-    "twilio-run": "^3.4.2"
+    "twilio-run": "^3.4.2",
+    "colors": "1.4.0",
+    "puppeteer": "15.3.0",
+    "puppeteer-core": "15.3.0"
   },
   "engines": {
     "node": "14"
