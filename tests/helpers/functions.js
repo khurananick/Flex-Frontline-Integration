@@ -80,6 +80,44 @@ module.exports = (function(client) {
     }
   };
 
+  Self.loadChatMessages = async function(client, channel) {
+    if(!channel) return;
+
+    return await client.chat.v2.services(channel.serviceSid)
+              .channels(channel.sid)
+              .messages
+              .list();
+  }
+
+  Self.postMessageToChatChannel = async function(client, channel, from, body) {
+    if(!channel) return;
+
+    const message = await client.chat.v2.services(channel.serviceSid)
+              .channels(channel.sid)
+              .messages
+              .create({body: body, from: from});
+    return message;
+  }
+
+  Self.postMessageToConversation = async function(client, conversation, from, body) {
+    if(!conversation) return;
+
+    const message = await client.conversations.conversations(conversation.sid)
+      .messages
+      .create({author: from, body: body});
+
+    return message;
+  }
+
+  Self.loadConversationMessages = async function(client, conversation) {
+    if(!conversation) return;
+
+    return await client.conversations
+      .conversations(conversation.sid)
+      .messages
+      .list()
+  }
+
   Self.cleanupResources = async function(client, frClient, wsid, serviceSid, workerName) {
     console.log("Cleaning up Task, Chat Channels and Conversations");
     const worker = await Self.getWorker(client, wsid, workerName);

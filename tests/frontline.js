@@ -39,6 +39,7 @@ module.exports = (function() {
   Self.testIfConversationHasAgent = async function (participants, agentIdentity) {
     console.log('Testing if conversation has agent.'.yellow);
     const arr = [];
+
     for(const participant of participants) {
       participant.attributes = JSON.parse(participant.attributes);
       arr.push(participant.attributes);
@@ -50,6 +51,28 @@ module.exports = (function() {
       agentIdentity,
       'Conversation does not have any agents.',
       'Conversation has an agent.'
+    )
+  }
+
+  Self.testIfConversationHasMessages = async function(messages) {
+    console.log('Testing if conversation has messages.'.yellow);
+
+    assertions.testIfObjectExists(
+      messages,
+      'Conversation does not have Messages.',
+      'Conversation has Messages.'
+    );
+  }
+
+  Self.testIfMessageExistsInConversation = async function(messages, messageBody) {
+    console.log(`Testing if the Frontline Conversation has a message: ${messageBody}`.yellow);
+
+    assertions.testIfCollectionHasAttributeValue(
+      messages,
+      'body',
+      messageBody,
+      'Conversation does not have Chat message.',
+      'Conversation has Chat message.'
     )
   }
 

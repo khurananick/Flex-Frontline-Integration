@@ -77,5 +77,27 @@ module.exports = (function() {
     )
   }
 
+  Self.testIfChatChannelHasMessages = async function(messages) {
+    console.log('Testing if chat channel has messages.'.yellow);
+
+    assertions.testIfObjectExists(
+      messages,
+      'Chat Channel does not have Messages.',
+      'Chat Channel has Messages.'
+    );
+  }
+
+  Self.testIfMessageExistsInChatChannel = async function(messages, messageBody) {
+    console.log('Testing if the flex chat channel has a message posted in Flex Chat'.yellow);
+
+    assertions.testIfCollectionHasAttributeValue(
+      messages,
+      'body',
+      messageBody,
+      'Chat Channel does not have Conversation message replicated.',
+      'Chat Channel has Conversation message replicated.'
+    )
+  }
+
   return Self;
 })();

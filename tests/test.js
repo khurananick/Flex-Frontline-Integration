@@ -20,8 +20,10 @@ const helpers             = require('./helpers/functions.js');
 const testWorkerName      = 'nkhurana';
 const availableActivity   = "Available";
 const unAvailableActivity = "Unavailable";
+const agentChatMessage      = "Message from agent via Chat Channel.";
+const agentFrontlineMessage = "Message from agent via Frontline.";
 
-let session, conversation, participants, channel, members;
+let session, conversation, participants, channel, members, flexMessages, frontlineMessages;
 const tests = [];
 
 const sleep = (milliseconds) => {
@@ -29,10 +31,21 @@ const sleep = (milliseconds) => {
 }
 
 async function loadResources() {
+  channel = null;
   channel = await helpers.findChatChannel(client, env.CHAT_SERVICE_SID);
+  members = null;
   members = await helpers.getChatChannelMembers(client, channel);
+  conversation = null;
   conversation = await helpers.findConversation(frClient, testWorkerName);
+  participants = null;
   participants = await helpers.getConversationParticipants(frClient, conversation);
+}
+
+async function loadMessageResources() {
+  flexMessages = null;
+  flexMessages = await helpers.loadChatMessages(client, channel);
+  frontlineMessages = null;
+  frontlineMessages = await helpers.loadConversationMessages(frClient, conversation);
 }
 
 async function startTestSession(sleepDelay) {
@@ -68,6 +81,25 @@ tests.push(async function() {
   await frontline.testConversationExists(frClient, testWorkerName);
   await frontline.testIfConversationHasAgent(participants)
 
+  // post a message to the chat channel
+  await helpers.postMessageToChatChannel(client, channel, testWorkerName, agentChatMessage);
+
+  await sleep(2000);
+
+  // reload the message resources
+  await loadMessageResources();
+  await frontline.testIfConversationHasMessages(frontlineMessages);
+  await frontline.testIfMessageExistsInConversation(frontlineMessages, agentChatMessage);
+
+  // post a message to frontline
+  await helpers.postMessageToConversation(frClient, conversation, testWorkerName, agentFrontlineMessage);
+
+  await sleep(2000);
+
+  // reload messages
+  await loadMessageResources();
+  await frontline.testIfMessageExistsInConversation(frontlineMessages, agentFrontlineMessage);
+
   await endTestSession();
 });
 
@@ -87,6 +119,7 @@ tests.push(async function() {
   await helpers.setAgentStatus(client, env.WORKSPACE_SID, testWorkerName, availableActivity);
 
   await sleep(5000);
+
   await loadResources();
 
   // run tests again
