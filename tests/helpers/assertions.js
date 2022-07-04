@@ -13,6 +13,15 @@ module.exports = (function() {
       console.log(passMsg.green);
   }
 
+  Self.testIfObjectDoesNotExist = function(params, failMsg, passMsg) {
+    if(params) {
+      console.log(failMsg.red);
+      process.exit();
+    }
+    else
+      console.log(passMsg.green);
+  }
+
   Self.testIfAttributeExists = function(object, attribute, failMsg, passMsg) {
     if(!object[attribute]) {
       console.log(failMsg.red);

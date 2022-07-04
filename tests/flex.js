@@ -1,7 +1,7 @@
 const colors = require('colors');
 colors.enable()
 
-const test = require("./helpers/test.js");
+const assertions = require("./helpers/assertions.js");
 
 module.exports = (function() {
   const Self = {};
@@ -9,7 +9,7 @@ module.exports = (function() {
   Self.testChatChannelExists = async function (channel) {
     console.log('Testing if chat channel exists.'.yellow);
 
-    test.testIfObjectExists(
+    assertions.testIfObjectExists(
       channel,
       'Channel does not exist.',
       'Channel exists.'
@@ -19,7 +19,7 @@ module.exports = (function() {
   Self.testChatChannelHasConversation = async function (channel) {
     console.log('Testing if chat channel has Conversation.'.yellow);
 
-    test.testIfAttributeExists(
+    assertions.testIfAttributeExists(
       channel.attributes,
       'ConversationSid',
       'Channel does not have Conversation.',
@@ -30,7 +30,7 @@ module.exports = (function() {
   Self.testIfChatChannelHasMembers = async function (members) {
     console.log('Testing if chat channel has members.'.yellow);
 
-    test.testIfObjectExists(
+    assertions.testIfObjectExists(
       members,
       'Channel does not have members.',
       'Channel has members.'
@@ -48,7 +48,7 @@ module.exports = (function() {
       });
     }
 
-    test.testCollectDotNaveAttributeValue(
+    assertions.testCollectDotNaveAttributeValue(
       arr,
       'member_type',
       'agent',
@@ -68,7 +68,7 @@ module.exports = (function() {
       });
     }
 
-    test.testIfCollectionHasAttributeValue(
+    assertions.testIfCollectionHasAttributeValue(
       arr,
       'member_type',
       'agent',

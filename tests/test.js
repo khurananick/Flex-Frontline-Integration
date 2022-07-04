@@ -28,18 +28,22 @@ const sleep = (milliseconds) => {
   return new Promise(resolve => setTimeout(resolve, milliseconds))
 }
 
-async function startTestSession() {
+async function loadResources() {
+  channel = await helpers.findChatChannel(client, env.CHAT_SERVICE_SID);
+  members = await helpers.getChatChannelMembers(client, channel);
+  conversation = await helpers.findConversation(frClient, testWorkerName);
+  participants = await helpers.getConversationParticipants(frClient, conversation);
+}
+
+async function startTestSession(sleepDelay) {
   await helpers.cleanupResources(client, frClient, env.WORKSPACE_SID, env.CHAT_SERVICE_SID, testWorkerName);
 
   if(!TEST_CHANNEL_SMS)
     session = await webchat.loadAndStartChatAsUser();
 
-  await sleep(50000); // give it 5 seconds for data to replicate into both systems.
+  await sleep(sleepDelay); // give it 5 seconds for data to replicate into both systems.
 
-  channel = await helpers.findChatChannel(client, env.CHAT_SERVICE_SID);
-  members = await helpers.getChatChannelMembers(client, channel);
-  conversation = await helpers.findConversation(frClient, testWorkerName);
-  participants = await helpers.getConversationParticipants(frClient, conversation);
+  await loadResources();
 }
 
 async function endTestSession() {
@@ -55,7 +59,7 @@ tests.push(async function() {
   // ensure agent is online.
   await helpers.setAgentStatus(client, env.WORKSPACE_SID, testWorkerName, availableActivity);
 
-  await startTestSession();
+  await startTestSession(5000);
 
   // run the tests.
   await flex.testChatChannelExists(channel);
@@ -73,12 +77,24 @@ tests.push(async function() {
   // set agent to unavailable
   await helpers.setAgentStatus(client, env.WORKSPACE_SID, testWorkerName, unAvailableActivity);
 
-  await startTestSession();
+  await startTestSession(1000);
 
   // run the tests.
   await flex.testChatChannelExists(channel);
   await flex.testIfChatChannelDoesNotHaveAgent(members);
-  await frontline.testConversationExists(conversation);
+  await frontline.testConversationDoesNotExist(conversation);
+
+  await helpers.setAgentStatus(client, env.WORKSPACE_SID, testWorkerName, availableActivity);
+
+  await sleep(5000);
+  await loadResources();
+
+  // run tests again
+  await flex.testChatChannelExists(channel);
+  await flex.testChatChannelHasConversation(channel);
+  await flex.testIfChatChannelHasAgent(members);
+  await frontline.testConversationExists(frClient, testWorkerName);
+  await frontline.testIfConversationHasAgent(participants)
 
   await endTestSession();
 });
