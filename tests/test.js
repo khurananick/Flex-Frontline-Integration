@@ -13,9 +13,10 @@ const TEST_CHANNEL_SMS = (env.npm_config_channel == "sms"); // if not we assume 
 const client              = require("twilio")(env.ACCOUNT_SID, env.AUTH_TOKEN);
 const frClient            = require("twilio")(env.FRONTLINE_ACCOUNT_SID, env.FRONTLINE_AUTH_TOKEN);
 
-const webchat             = require('./webchat.js');
+const browser             = require('./helpers/browser.js');
 const flex                = require('./flex.js');
 const frontline           = require('./frontline.js');
+const webchat             = require('./webchat.js');
 const helpers             = require('./helpers/functions.js');
 const testWorkerName      = 'nkhurana';
 const availableActivity   = "Available";
@@ -52,7 +53,7 @@ async function startTestSession(sleepDelay) {
   await helpers.cleanupResources(client, frClient, env.WORKSPACE_SID, env.CHAT_SERVICE_SID, testWorkerName);
 
   if(!TEST_CHANNEL_SMS)
-    session = await webchat.loadAndStartChatAsUser();
+    session = await browser.loadAndStartChatAsUser();
 
   await sleep(sleepDelay); // give it 5 seconds for data to replicate into both systems.
 
@@ -61,7 +62,7 @@ async function startTestSession(sleepDelay) {
 
 async function endTestSession() {
   if(!TEST_CHANNEL_SMS)
-    await webchat.closeBrowserSession(session.browser, session.page);
+    await browser.closeBrowserSession(session.browser, session.page);
 
   await helpers.cleanupResources(client, frClient, env.WORKSPACE_SID, env.CHAT_SERVICE_SID, testWorkerName);
 }
@@ -86,6 +87,8 @@ tests.push(async function() {
 
   await sleep(2000);
 
+  await webchat.testIfTextExists((await session.page.content()).match(agentChatMessage), agentChatMessage);
+
   // reload the message resources
   await loadMessageResources();
   await frontline.testIfConversationHasMessages(frontlineMessages);
@@ -95,10 +98,7 @@ tests.push(async function() {
   await helpers.postMessageToConversation(frClient, conversation, testWorkerName, agentFrontlineMessage);
 
   await sleep(2000);
-
-  // reload messages
-  await loadMessageResources();
-  await frontline.testIfMessageExistsInConversation(frontlineMessages, agentFrontlineMessage);
+  await webchat.testIfTextExists((await session.page.content()).match(agentFrontlineMessage), agentFrontlineMessage);
 
   await endTestSession();
 });

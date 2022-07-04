@@ -104,7 +104,7 @@ module.exports = (function(client) {
 
     const message = await client.conversations.conversations(conversation.sid)
       .messages
-      .create({author: from, body: body});
+      .create({author: from, body: body, xTwilioWebhookEnabled: true});
 
     return message;
   }
