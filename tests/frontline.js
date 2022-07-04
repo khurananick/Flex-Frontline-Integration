@@ -5,6 +5,9 @@ module.exports = (function() {
     console.log('Testing if conversation exists.'.yellow);
   }
 
+  Self.testConversationDoesNotExist = async function(conversation) {
+  }
+
   Self.testIfConversationHasParticipants = async function () {
     console.log('Testing if conversation has participants.'.yellow);
   }

@@ -42,10 +42,17 @@ module.exports = (function(client) {
       return await client.chat.v2.services(serviceSid).channels.list();
   }
 
-  Self.getChatChannelMembers = async function(members) {
+  Self.getChatChannelMembers = async function(client, channel) {
+    return await client.chat.v2.services(channel.serviceSid)
+      .channels(channel.sid).members
+      .list();
   }
 
-  Self.getConversationParticipants = async function(participants) {
+  Self.getConversationParticipants = async function(client, conversation) {
+    if(conversation)
+      return await client.conversations.conversations(conversation.sid)
+        .participants
+        .list();
   }
 
   Self.findConversation = async function(client, workerName) {
@@ -55,6 +62,7 @@ module.exports = (function(client) {
 
     for(const c of conversations) {
       c.conversationAttributes = JSON.parse(c.conversationAttributes);
+      c.sid = c.conversationSid;
       if(c.conversationState == "active" && !c.conversationAttributes.isNotificationSystem)
         return c;
     }
