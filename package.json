@@ -24,7 +24,8 @@
     "twilio-run": "^3.4.2",
     "colors": "1.4.0",
     "puppeteer": "15.3.0",
-    "puppeteer-core": "15.3.0"
+    "puppeteer-core": "15.3.0",
+    "readline-sync": "1.4.10"
   },
   "engines": {
     "node": "14"

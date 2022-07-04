@@ -1,14 +1,16 @@
 module.exports = (function() {
   const Self = {};
 
-  Self.testConversationExists = async function () {
-    console.log('Testing if chat channel exists.');
+  Self.testConversationExists = async function (client) {
+    console.log('Testing if conversation exists.'.yellow);
   }
 
   Self.testIfConversationHasParticipants = async function () {
+    console.log('Testing if conversation has participants.'.yellow);
   }
 
   Self.testIfConversationHasAgent = async function () {
+    console.log('Testing if conversation has agent.'.yellow);
   }
 
   return Self;
