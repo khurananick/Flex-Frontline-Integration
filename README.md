@@ -1,3 +1,6 @@
+**Please note this is not an official Twilio supported application.** 
+**This application does not come with any warranties. You may use this application at your own risk.** 
+
 # Flex + Frontline Integration
 
 This simple web app takes webhooks from the Programmable Chat API used in the Twilio Flex project and webhooks Conversations API in the Frontline project to sync the two resources together with messages posted by participants.
