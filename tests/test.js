@@ -1,13 +1,6 @@
 require('dotenv').config();
 const { env } = process;
 
-if(!env.npm_config_skip_prompt) {
-  const reader = require("readline-sync");
-  const prompt = reader.question("The test suite will delete all open chat channels, conversations and tasks. Would you like to continue? ");
-  if(prompt.toLowerCase() != "y")
-    process.exit();
-}
-
 const TEST_CHANNEL_SMS = (env.npm_config_channel == "sms"); // if not we assume chat.
 
 const client              = require("twilio")(env.ACCOUNT_SID, env.AUTH_TOKEN);
@@ -32,20 +25,14 @@ const sleep = (milliseconds) => {
 }
 
 async function loadResources() {
-  channel = null;
   channel = await helpers.findChatChannel(client, env.CHAT_SERVICE_SID);
-  members = null;
   members = await helpers.getChatChannelMembers(client, channel);
-  conversation = null;
   conversation = await helpers.findConversation(frClient, testWorkerName);
-  participants = null;
   participants = await helpers.getConversationParticipants(frClient, conversation);
 }
 
 async function loadMessageResources() {
-  flexMessages = null;
   flexMessages = await helpers.loadChatMessages(client, channel);
-  frontlineMessages = null;
   frontlineMessages = await helpers.loadConversationMessages(frClient, conversation);
 }
 
@@ -127,6 +114,10 @@ tests.push(async function() {
   await flex.testChatChannelHasConversation(channel);
   await flex.testIfChatChannelHasAgent(members);
   await frontline.testConversationExists(frClient, testWorkerName);
+
+  if(!participants) // ensure participants are loaded.
+    participants = await helpers.getConversationParticipants(frClient, conversation);
+
   await frontline.testIfConversationHasAgent(participants)
 
   await endTestSession();

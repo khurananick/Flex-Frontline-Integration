@@ -91,4 +91,12 @@ npm run deploy_routes --route=https://YOUR_SERVICE_SUBDOMAIN.twil.io
 <p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/imgs/frontline-post-webhook.png" style="width:80%;margin:0;"/></p>
 <p align="center"><img src="https://flex-frontline-integration-1058-dev.twil.io/imgs/default-webhook.png" style="width:80%;margin:0;"/></p>
 
-
+## Testing
+##### Requires Puppeteer and Chromium
+```
+npm run test 
+```
+##### In case the tests are not running properly, try removing all existing conversations and chat channels. Keep in mind this is irreversible. All Conversations history from the Frontline project and all Chat Channels history will be wiped from each project.
+```
+npm run test --wipe_channels=true --wipe_conversations=true
+```
