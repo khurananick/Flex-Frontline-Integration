@@ -26,6 +26,37 @@ You should deploy this application only to your Flex Account.
 
 * **Flex Is The Primary Orchestrator**: This would be the best way to track SLAs (agent response times, duration of conversations, average wait time, etc.)
 
+###### Endpoints
+
+* **/chat-to-frontline**: Prog Chat webhook from the Flex project.
+	* Triggers
+		* **onMessageSent** - everytime a message is posted to the channel, we confirm if the channel has a corresponding conversation (create if not), then post the message to the conversation.
+		* **onMemberRemoved** - if there are no agents left in the chat, we close the conversation.
+		* **onMessageSent, onChannelUpdated, onChannelDestroyed** - default events that come with the project. We're simply proxying these to the default URL.
+* **/check-agent-availability** *(optional)*: Checks if the agent is online. If not, sends a system notification to the agent to alert them. 
+	* Triggers
+		* AJAX request from the client page.
+* **/frontline-to-chat**: 
+	* Triggers
+		* **onMessageAdded** - posts the message back to chat channel.
+		* **onConversationStateUpdated** - if closed, closes the channel.
+		* **onConversationAdded** - pending.
+* **/taskrouter-handler**: 
+	* Triggers
+		* **reservation.created** - sets reservation to accepted if auto accept is enabled.
+		* **reservation.accepted**  - adds the agent to chat channel as member if agent is not a member. adds agent to conversation if not a participant.
+		* **worker.activity.update'** - listens for worker status update in flex and frontline and replicates to the other side.
+* **/frontline/crm**: 
+	* Triggers
+		* **GetCustomersList** - List of customers to show in frontline.
+		* **GetCustomerDetailsByCustomerId** - Details of a particular customer in frontline.
+* **/frontline/outgoing**:
+	* Triggers
+		* Gathers the proxy phone number needed to start conversation.
+* **/frontline/templates**: 
+	* Triggers
+		* Gathers templates to display for frontline agent.
+
 ## Considerations
 
 * **Desynchronization**: In case the Programmable Chat service in the Flex Project or the Conversations service in the Frontline project experience downtime, the Chat Channel and the Conversation may fall out of sync. 
