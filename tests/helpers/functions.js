@@ -128,10 +128,12 @@ module.exports = (function(client) {
       .reservations
       .list();
     for(const r of reservations) {
-      await client.taskrouter.workspaces(wsid)
+      if(["accepted", "pending", "timeout","wrapping"].indexOf(r.reservationStatus)>=0) {
+        await client.taskrouter.workspaces(wsid)
                  .workers(worker.sid)
                  .reservations(r.sid)
                  .update({reservationStatus: 'completed'});
+      }
     }
     const tasks = await Self.getTasks(client, wsid);
     for(const task of tasks) {
