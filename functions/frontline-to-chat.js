@@ -26,14 +26,10 @@ exports.handler = async function (context, event, callback) {
   const convo = await conversations_helpers.findConversation(frClient, event.ConversationSid);
 
   if(event.EventType == "onMessageAdded") {
+    if(!conversations_helpers.hasChatChannelMapped(convo.attributes))
+      await chat_helpers.createChatForConversation(frClient, conversations_helpers, context, event)
+
     await chat_helpers.postMessageToChatChannel(client, convo, event.ClientIdentity, event.Body);
-    /* DONT THINK THIS IS NEEDED REMOVE IF NO BUGS FOUND
-    const channel = await chat_helpers.findChatChannel(client, convo.attributes.chatChannelSid, convo.attributes.chatInstanceSid);
-    if(!channel.attributes.ConversationSid) {
-      channel.attributes.ConversationSid = event.ConversationSid;
-      await chat_helpers.updateChatChannelAttributes(client, channel.attributes, convo.attributes.chatChannelSid, convo.attributes.chatInstanceSid);
-    }
-    */
   }
 
   /*
@@ -60,30 +56,9 @@ exports.handler = async function (context, event, callback) {
     // if conversation already has channel, then skip this
     const attrs = event.ConversationAttributes;
     if(attrs)
-      if(conversation_helpers.hasChatChannelMapped(JSON.parse(attrs)))
+      if(conversations_helpers.hasChatChannelMapped(JSON.parse(attrs)))
         return;
 
-    const createOutboundSMS = require(Runtime.getFunctions()['helpers/outbound-sms'].path);
-    const participants = await conversations_helpers.fetchConversationParticipants(frClient, event.ConversationSid);
-
-    const { smsParticipants, chatParticipants } = await conversations_helpers.extractParticipantsByChannel(participants);
-
-    if(smsParticipants[0]) {
-      // create the outbound sms channel in flex project.
-      event.ToName = event.FriendlyName;
-      event.ToNumber = smsParticipants[0].messagingBinding.address;
-      event.TargetWorker = chatParticipants[0].identity;
-      const outboundSMS = await createOutboundSMS(context, event);
-      const { newChannel } = outboundSMS;
-      // map conversation to channel
-      const convo = await conversations_helpers.updateConversation(frClient, event.ConversationSid, {
-        chatChannelSid: newChannel.sid,
-        chatInstanceSid: newChannel.serviceSid
-      });
-      // relace the sms participant with chat identity
-      await conversations_helpers.replaceParticipant(
-        frClient, {sid: event.ConversationSid}, {identity: smsParticipants[0].sid}, smsParticipants[0].sid
-      );
-    }
+    await chat_helpers.createChatForConversation(frClient, conversations_helpers, context, event)
   }
 }
