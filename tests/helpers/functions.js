@@ -119,30 +119,47 @@ module.exports = (function(client) {
   }
 
   Self.cleanupResources = async function(client, frClient, wsid, serviceSid, workerName) {
-    console.log("Cleaning up Task, Chat Channels and Conversations");
+    console.log("Cleaning up Tasks");
     const worker = await Self.getWorker(client, wsid, workerName);
     /* deleting all tasks */
+    const reservations = await client.taskrouter
+      .workspaces(wsid)
+      .workers(worker.sid)
+      .reservations
+      .list();
+    for(const r of reservations) {
+      await client.taskrouter.workspaces(wsid)
+                 .workers(worker.sid)
+                 .reservations(r.sid)
+                 .update({reservationStatus: 'completed'});
+    }
     const tasks = await Self.getTasks(client, wsid);
     for(const task of tasks) {
       await client.taskrouter.workspaces(wsid).tasks(task.sid).remove();
     }
     /* end deleting all tasks */
     /* deleting all channels */
-    const channels = await Self.getChatChannels(client, serviceSid);
-    for(const channel of channels) {
-      await client.chat.v2.services(serviceSid).channels(channel.sid).remove();
+    if(process.env.npm_config_wipe_channels) {
+      console.log("Cleaning up Chat Channels");
+      const channels = await Self.getChatChannels(client, serviceSid);
+      for(const channel of channels) {
+        await client.chat.v2.services(serviceSid).channels(channel.sid).remove();
+      }
     }
     /* end deleting all channels */
     /* deleting all conversations */
-    const conversations = await frClient.conversations.conversations.list();
-    for(const c of conversations) {
-      if(c.conversationAttributes) {
-        c.conversationAttributes = JSON.parse(c.conversationAttributes);
-        if(!c.conversationAttributes.isNotificationSystem)
+    if(process.env.npm_config_wipe_conversations) {
+      console.log("Cleaning up Conversations");
+      const conversations = await frClient.conversations.conversations.list();
+      for(const c of conversations) {
+        if(c.conversationAttributes) {
+          c.conversationAttributes = JSON.parse(c.conversationAttributes);
+          if(!c.conversationAttributes.isNotificationSystem)
+            await frClient.conversations.conversations(c.sid).remove();
+        }
+        else
           await frClient.conversations.conversations(c.sid).remove();
       }
-      else
-        await frClient.conversations.conversations(c.sid).remove();
     }
     /* end deleting all conversations */
   };

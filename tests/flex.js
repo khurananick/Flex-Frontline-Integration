@@ -7,9 +7,8 @@ module.exports = (function() {
   const Self = {};
 
   Self.testChatChannelExists = async function (channel) {
-    console.log('Testing if chat channel exists.'.yellow);
-
     assertions.testIfObjectExists(
+      'Testing if chat channel exists.',
       channel,
       'Channel does not exist.',
       'Channel exists.'
@@ -17,9 +16,8 @@ module.exports = (function() {
   }
 
   Self.testChatChannelHasConversation = async function (channel) {
-    console.log('Testing if chat channel has Conversation.'.yellow);
-
     assertions.testIfAttributeExists(
+      'Testing if chat channel has Conversation.',
       channel.attributes,
       'ConversationSid',
       'Channel does not have Conversation.',
@@ -28,9 +26,8 @@ module.exports = (function() {
   }
 
   Self.testIfChatChannelHasMembers = async function (members) {
-    console.log('Testing if chat channel has members.'.yellow);
-
     assertions.testIfObjectExists(
+      'Testing if chat channel has members.',
       members,
       'Channel does not have members.',
       'Channel has members.'
@@ -38,8 +35,6 @@ module.exports = (function() {
   }
 
   Self.testIfChatChannelDoesNotHaveAgent = async function(members) {
-    console.log('Testing if chat channel does not have any agents.'.yellow);
-
     const arr = [];
     for(const member of members) {
       member.attributes = JSON.parse(member.attributes);
@@ -49,6 +44,7 @@ module.exports = (function() {
     }
 
     assertions.testCollectDotNaveAttributeValue(
+      'Testing if chat channel does not have any agents.',
       arr,
       'member_type',
       'agent',
@@ -58,8 +54,6 @@ module.exports = (function() {
   }
 
   Self.testIfChatChannelHasAgent = async function (members) {
-    console.log('Testing if chat channel has any agents.'.yellow);
-
     const arr = [];
     for(const member of members) {
       member.attributes = JSON.parse(member.attributes);
@@ -69,6 +63,7 @@ module.exports = (function() {
     }
 
     assertions.testIfCollectionHasAttributeValue(
+      'Testing if chat channel has any agents.',
       arr,
       'member_type',
       'agent',
@@ -78,9 +73,8 @@ module.exports = (function() {
   }
 
   Self.testIfChatChannelHasMessages = async function(messages) {
-    console.log('Testing if chat channel has messages.'.yellow);
-
     assertions.testIfObjectExists(
+      'Testing if chat channel has messages.',
       messages,
       'Chat Channel does not have Messages.',
       'Chat Channel has Messages.'
@@ -88,9 +82,8 @@ module.exports = (function() {
   }
 
   Self.testIfMessageExistsInChatChannel = async function(messages, messageBody) {
-    console.log('Testing if the flex chat channel has a message posted in Flex Chat'.yellow);
-
     assertions.testIfCollectionHasAttributeValue(
+      'Testing if the flex chat channel has a message posted in Flex Chat',
       messages,
       'body',
       messageBody,

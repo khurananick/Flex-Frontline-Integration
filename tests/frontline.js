@@ -7,9 +7,8 @@ module.exports = (function() {
   const Self = {};
 
   Self.testConversationExists = async function (conversation) {
-    console.log('Testing if conversation exists.'.yellow);
-
     assertions.testIfObjectExists(
+      'Testing if conversation exists.',
       conversation,
       'Conversation does not exist.',
       'Conversation exists.'
@@ -17,9 +16,8 @@ module.exports = (function() {
   }
 
   Self.testConversationDoesNotExist = async function(conversation) {
-    console.log('Testing if conversation does not exist.'.yellow);
-
     assertions.testIfObjectDoesNotExist(
+      'Testing if conversation does not exist.',
       conversation,
       'Conversation exists.',
       'Conversation does not exist.'
@@ -27,9 +25,8 @@ module.exports = (function() {
   }
 
   Self.testIfConversationHasParticipants = async function (participants) {
-    console.log('Testing if conversation has participants.'.yellow);
-
     assertions.testIfObjectExists(
+      'Testing if conversation has participants.',
       participants,
       'Conversation does not have Participants.',
       'Conversation has Participants.'
@@ -37,15 +34,14 @@ module.exports = (function() {
   }
 
   Self.testIfConversationHasAgent = async function (participants, agentIdentity) {
-    console.log('Testing if conversation has agent.'.yellow);
     const arr = [];
-
     for(const participant of participants) {
       participant.attributes = JSON.parse(participant.attributes);
       arr.push(participant.attributes);
     }
 
     assertions.testIfCollectionHasAttributeValue(
+      'Testing if conversation has agent.',
       arr,
       'identity',
       agentIdentity,
@@ -55,9 +51,8 @@ module.exports = (function() {
   }
 
   Self.testIfConversationHasMessages = async function(messages) {
-    console.log('Testing if conversation has messages.'.yellow);
-
     assertions.testIfObjectExists(
+      'Testing if conversation has messages.',
       messages,
       'Conversation does not have Messages.',
       'Conversation has Messages.'
@@ -65,9 +60,8 @@ module.exports = (function() {
   }
 
   Self.testIfMessageExistsInConversation = async function(messages, messageBody) {
-    console.log(`Testing if the Frontline Conversation has a message: ${messageBody}`.yellow);
-
     assertions.testIfCollectionHasAttributeValue(
+      `Testing if the Frontline Conversation has a message: ${messageBody}`,
       messages,
       'body',
       messageBody,
