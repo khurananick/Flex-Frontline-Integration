@@ -3,17 +3,17 @@ const { env } = process;
 
 const TEST_CHANNEL_SMS = (env.npm_config_channel == "sms"); // if not we assume chat.
 
-const client              = require("twilio")(env.ACCOUNT_SID, env.AUTH_TOKEN);
-const frClient            = require("twilio")(env.FRONTLINE_ACCOUNT_SID, env.FRONTLINE_AUTH_TOKEN);
+const client                = require("twilio")(env.ACCOUNT_SID, env.AUTH_TOKEN);
+const frClient              = require("twilio")(env.FRONTLINE_ACCOUNT_SID, env.FRONTLINE_AUTH_TOKEN);
 
-const browser             = require('./helpers/browser.js');
-const flex                = require('./flex.js');
-const frontline           = require('./frontline.js');
-const webchat             = require('./webchat.js');
-const helpers             = require('./helpers/functions.js');
-const testWorkerName      = 'nkhurana';
-const availableActivity   = "Available";
-const unAvailableActivity = "Unavailable";
+const browser               = require('./helpers/browser.js');
+const flex                  = require('./flex.js');
+const frontline             = require('./frontline.js');
+const webchat               = require('./webchat.js');
+const helpers               = require('./helpers/functions.js');
+const testWorkerName        = 'nkhurana';
+const availableActivity     = "Available";
+const unAvailableActivity   = "Unavailable";
 const agentChatMessage      = "Message from agent via Chat Channel.";
 const agentFrontlineMessage = "Message from agent via Frontline.";
 
