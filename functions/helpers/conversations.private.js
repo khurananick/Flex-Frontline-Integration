@@ -53,7 +53,31 @@ module.exports = function () {
     await client.conversations.conversations(convo.sid)
       .participants
       .create(attrs)
-      .catch(function(e) { /* do nothing */ });
+      .catch(function(e) { console.log(e); });
+  }
+
+  Self.removeParticipant = async function(client, convo, psid) {
+    console.log("Removing a participant from conversation.");
+    await client.conversations.conversations(convo.sid)
+      .participants(psid)
+      .remove()
+      .catch(function(e) { console.log(e); });
+  }
+
+  Self.replaceParticipant = async function(client, convo, attrs, psid) {
+    await Self.addParticipant(client, convo, attrs);
+    await Self.removeParticipant(client, convo, psid);
+  }
+
+  Self.extractParticipantsByChannel = async function(participants) {
+    const smsParticipants = [];
+    const chatParticipants = [];
+    for(const p of participants)
+      if(p.messagingBinding)
+        smsParticipants.push(p);
+      else
+        chatParticipants.push(p);
+    return { smsParticipants, chatParticipants };
   }
 
   Self.getConversationByParticipant = async function(client, identity) {

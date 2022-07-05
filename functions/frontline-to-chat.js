@@ -57,6 +57,27 @@ exports.handler = async function (context, event, callback) {
 
 
   if(event.EventType == "onConversationAdded") {
+    const createOutboundSMS = require(Runtime.getFunctions()['helpers/outbound-sms'].path);
     const participants = await conversations_helpers.fetchConversationParticipants(frClient, event.ConversationSid);
+
+    const { smsParticipants, chatParticipants } = await conversations_helpers.extractParticipantsByChannel(participants);
+
+    if(smsParticipants[0]) {
+      // create the outbound sms channel in flex project.
+      event.ToName = event.FriendlyName;
+      event.ToNumber = smsParticipants[0].messagingBinding.address;
+      event.TargetWorker = chatParticipants[0].identity;
+      const outboundSMS = await createOutboundSMS(context, event);
+      const { newChannel } = outboundSMS;
+      // map conversation to channel
+      const convo = await conversations_helpers.updateConversation(frClient, event.ConversationSid, {
+        chatChannelSid: newChannel.sid,
+        chatInstanceSid: newChannel.serviceSid
+      });
+      // relace the sms participant with chat identity
+      await conversations_helpers.replaceParticipant(
+        frClient, {sid: event.ConversationSid}, {identity: smsParticipants[0].sid}, smsParticipants[0].sid
+      );
+    }
   }
 }
