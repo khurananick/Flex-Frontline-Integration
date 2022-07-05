@@ -57,6 +57,12 @@ exports.handler = async function (context, event, callback) {
 
 
   if(event.EventType == "onConversationAdded") {
+    // if conversation already has channel, then skip this
+    const attrs = event.ConversationAttributes;
+    if(attrs)
+      if(conversation_helpers.hasChatChannelMapped(JSON.parse(attrs)))
+        return;
+
     const createOutboundSMS = require(Runtime.getFunctions()['helpers/outbound-sms'].path);
     const participants = await conversations_helpers.fetchConversationParticipants(frClient, event.ConversationSid);
 

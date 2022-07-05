@@ -163,6 +163,10 @@ module.exports = function () {
                     .catch(function(e) { /* do nothing. */ });
   }
 
+  Self.hasChatChannelMapped = function(conversation) {
+    return conversation.attributes.chatChannelSid;
+  }
+
   return Self;
 }
 
