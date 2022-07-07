@@ -43,8 +43,8 @@ exports.handler = async function (context, event, callback) {
       const channel = await chat_helpers.findChatChannel(client, convo.attributes.chatChannelSid, convo.attributes.chatInstanceSid);
       const res = await taskrouter_helpers.updateUncompleteTasksToCompleted(
         client,
-        channel.attributes.WorkspaceSid,
-        channel.attributes.TaskSid,
+        convo.attributes.WorkspaceSid,
+        convo.attributes.TaskSid,
         {reservationStatus: 'completed'}
       );
       callback(null, response);

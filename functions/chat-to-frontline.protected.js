@@ -66,18 +66,6 @@ exports.handler = async function (context, event, callback) {
       channel.attributes.ConversationSid = convo.sid;
       channel.attributes.ConversationServiceSid = convo.chatServiceSid;
 
-      // while we're mapping the convo we can also map
-      // to the task in taskrouter so the task
-      // can be closed later when needed.
-      if(!chat_helpers.channelHasTaskAttributesMapped(channel)) {
-        const tasks = await taskrouter_helpers.findTasksByFilters(client, context.WORKSPACE_SID, {
-         evaluateTaskAttributes: `channelSid == "${channel.sid}"`,
-         limit: 1
-        });
-        channel.attributes.WorkspaceSid = tasks[0].workspaceSid;
-        channel.attributes.TaskSid = tasks[0].sid;
-      }
-
       channel = await chat_helpers.updateChatChannelAttributes(client, channel.attributes, channel.sid, channel.serviceSid);
     }
     // set a generic convo object if Corresponding conversation already exists

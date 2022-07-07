@@ -38,7 +38,7 @@ exports.handler = async function (context, event, callback) {
   }
 
   else if(event.EventType == 'reservation.accepted') {
-    setTimeout(async function() {
+    const updateChannelAndConversationAttrs = async function() {
       // running this on a delay so the api has time to create channel, participants and stuff
       const ChannelSid = JSON.parse(event.TaskAttributes).channelSid;
       let channel = await chat_helpers.findChatChannel(client, ChannelSid, context.CHAT_SERVICE_SID);
@@ -49,12 +49,22 @@ exports.handler = async function (context, event, callback) {
       }
 
       if(chat_helpers.channelHasConversationMapped(channel)) {
-        const convo = {
-          sid: channel.attributes.ConversationSid
-        };
-        await conversations_helpers.addParticipantsToConversation(frClient, convo, participants, channel);
+        const conversation = await conversations_helpers.findConversation(frClient, channel.attributes.ConversationSid);
+        await conversations_helpers.addParticipantsToConversation(frClient, conversation, participants, channel);
+        // storing task information in the frontline conversation
+        // so that if the frontline conversation is closed
+        // we can close the task on the other side.
+        await conversations_helpers.updateConversationWithTaskDetails(frClient, conversation, {
+          WorkspaceSid: event.WorkspaceSid,
+          TaskSid: event.TaskSid
+        });
       }
-    }, 3000);
+      else {
+        setTimeout(updateChannelAndConversationAttrs, 1500);
+      }
+    }
+
+    setTimeout(updateChannelAndConversationAttrs, 3000);
   }
 
   /*

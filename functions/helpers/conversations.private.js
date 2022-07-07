@@ -48,6 +48,16 @@ module.exports = function () {
     return convo;
   }
 
+  Self.updateConversationWithTaskDetails = async function(client, conversation, task_attrs) {
+    const ca = conversation.attributes;
+    if(ca.WorkspaceSid == task_attrs.WorkspaceSid && ca.TaskSid == task_attrs.TaskSid)
+      return;
+
+    ca.WorkspaceSid = task_attrs.WorkspaceSid;
+    ca.TaskSid = task_attrs.TaskSid;
+    return await Self.updateConversation(client, conversation.sid, ca)
+  }
+
   Self.addParticipant = async function(client, convo, attrs) {
     console.log("Adding a participant to conversation.");
     await client.conversations.conversations(convo.sid)
