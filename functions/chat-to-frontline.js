@@ -7,11 +7,16 @@
 exports.handler = async function (context, event, callback) {
   console.log('chat-to-frontline.js', event.EventType);
 
+  const helpers = require(Runtime.getFunctions()['helpers/functions'].path)();
+
+  if(!helpers.requestHasValidXTwilioSignature(context, event)) {
+    return callback(null, 'Invalid Signature');
+  }
+
   const response = new Twilio.Response();
   response.appendHeader('Content-Type', 'application/json');
   response.appendHeader('Access-Control-Allow-Origin', '*');
 
-  const helpers = require(Runtime.getFunctions()['helpers/functions'].path)();
   const chat_helpers = require(Runtime.getFunctions()['helpers/chat'].path)();
 
   /*

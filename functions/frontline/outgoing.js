@@ -1,16 +1,15 @@
 exports.handler = async function(context, event, callback) {
   console.log('frontline/outgoing.js', event.Location);
 
+  const helpers = require(Runtime.getFunctions()['helpers/functions'].path)();
+
+  if(!helpers.requestHasValidXTwilioSignature(context, event)) {
+    return callback(null, 'Invalid Signature');
+  }
+
   const response = new Twilio.Response();
   response.appendHeader('Content-Type', 'application/json');
   response.appendHeader('Access-Control-Allow-Origin', '*');
-
-  const helpers = require(Runtime.getFunctions()['helpers/functions'].path)();
-
-  if(!helpers.validateXTwilioSignature(context.FRONTLINE_AUTH_TOKEN, context, event)) {
-    response.setStatusCode(500);
-    return callback(null, response);
-  }
 
   const channelName = event.ChannelType;
   const proxyAddress = (function() {

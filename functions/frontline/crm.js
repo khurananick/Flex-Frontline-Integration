@@ -30,18 +30,17 @@ function extractPhoneNumber(channel) {
 exports.handler = async function (context, event, callback) {
   console.log('frontline/crm.js', event.Location);
 
-  const response = new Twilio.Response();
-  response.appendHeader('Content-Type', 'application/json');
-  response.appendHeader('Access-Control-Allow-Origin', '*');
-
   const helpers = require(Runtime.getFunctions()['helpers/functions'].path)();
 
-  if(!helpers.validateXTwilioSignature(context.FRONTLINE_AUTH_TOKEN, context, event)) {
-    response.setStatusCode(500);
-    return callback(null, response);
+  if(!helpers.requestHasValidXTwilioSignature(context, event)) {
+    return callback(null, 'Invalid Signature');
   }
 
   const chat_helpers = require(Runtime.getFunctions()['helpers/chat'].path)();
+
+  const response = new Twilio.Response();
+  response.appendHeader('Content-Type', 'application/json');
+  response.appendHeader('Access-Control-Allow-Origin', '*');
 
   if(helpers.isJson(event.CustomerId) && event.Location == 'GetCustomerDetailsByCustomerId') {
     const customer = JSON.parse(event.CustomerId);

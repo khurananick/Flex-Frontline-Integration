@@ -1,5 +1,11 @@
 exports.handler = async function (context, event, callback) {
-//  console.log('taskrouter-handler.js', event.EventType);
+  console.log('taskrouter-handler.js', event.EventType);
+
+  const helpers = require(Runtime.getFunctions()['helpers/functions'].path)();
+
+  if(!helpers.requestHasValidXTwilioSignature(context, event)) {
+    return callback(null, 'Invalid Signature');
+  }
 
   const response = new Twilio.Response();
   response.appendHeader('Content-Type', 'application/json');

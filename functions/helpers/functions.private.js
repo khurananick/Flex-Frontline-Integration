@@ -28,6 +28,16 @@ module.exports = function () {
     return client.validateRequest(authToken, signature, url, params);
   }
 
+  Self.requestHasValidXTwilioSignature = function(context, event) {
+    if(
+      Self.validateXTwilioSignature(context.AUTH_TOKEN, context, event) || 
+      Self.validateXTwilioSignature(context.FRONTLINE_AUTH_TOKEN, context, event))
+    {
+      return true;
+    }
+    return false;
+  }
+
   Self.inArray = function(arr, val) {
     return arr.indexOf(val) >= 0
   }
