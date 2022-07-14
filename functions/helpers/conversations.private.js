@@ -11,6 +11,13 @@ module.exports = function () {
     return convo.friendlyName == 'System';
   }
 
+  Self.hasParticipant = function(participants, identity) {
+    for(const p of participants) {
+      if(p.identity == identity) return true;
+    }
+    return false;
+  }
+
   /*
    * Look for the Conversation referenced in the inbound Conversation Webhook
    * so we can access its attributes
@@ -124,8 +131,18 @@ module.exports = function () {
 
   Self.getSystemConversation = async function(client, identity) {
     let conversation = await Self.getConversationByParticipant(client, Self.getSystemParticipantIdentity(identity));
-    if(!conversation)
+
+    if(!conversation) {
       conversation = await Self.createSystemConversation(client, identity);
+      return conversation;
+    }
+
+    conversation.sid = conversation.conversationSid;
+    let participants = await Self.fetchConversationParticipants(client, conversation.sid)
+
+    if(!Self.hasParticipant(participants, identity))
+      await Self.addParticipant(client, conversation, {identity: identity});
+
     return conversation;
   }
 
