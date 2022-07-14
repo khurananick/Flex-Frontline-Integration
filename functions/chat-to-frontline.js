@@ -85,7 +85,7 @@ exports.handler = async function (context, event, callback) {
     await conversations_helpers.addParticipantsToConversation(frClient, convo, participants, channel);
 
     // post this Message resource to the Conversation
-    await conversations_helpers.postMessageToFrontlineConversation(frClient, convo, participants, event.From, event.Body);
+    await conversations_helpers.postMessageToFrontlineConversation(frClient, convo, event.From, event.Body);
 
     /* DONT THINK THIS IS NEEDED REMOVE IF NO BUGS FOUND
     // retry if no agent.

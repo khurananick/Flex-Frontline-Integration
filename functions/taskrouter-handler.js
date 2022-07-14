@@ -30,15 +30,24 @@ exports.handler = async function (context, event, callback) {
    * going to be responsible for responding.
    */
   if(event.EventType == 'reservation.created') {
-    if(!context.AUTO_ACCEPT_TASKS || context.AUTO_ACCEPT_TASKS != 'true') return;
-
-    await taskrouter_helpers.updateTaskrouterReservationById(
-      client,
-      event.WorkspaceSid,
-      event.TaskSid,
-      event.ResourceSid,
-      {reservationStatus: 'accepted'}
-    );
+    if(!context.AUTO_ACCEPT_TASKS || context.AUTO_ACCEPT_TASKS != 'true') {
+      const systemConvo = await conversations_helpers.getSystemConversation(frClient, event.WorkerName);
+      await conversations_helpers.postMessageToFrontlineConversation(
+        frClient,
+        systemConvo,
+        conversations_helpers.getSystemParticipantIdentity(event.WorkerName),
+        "You have an incoming chat request. Would you like to accept? 1 for Yes, 2 for No."
+      )
+    }
+    else {
+      await taskrouter_helpers.updateTaskrouterReservationById(
+        client,
+        event.WorkspaceSid,
+        event.TaskSid,
+        event.ResourceSid,
+        {reservationStatus: 'accepted'}
+      );
+    }
 
     callback(null, response);
   }

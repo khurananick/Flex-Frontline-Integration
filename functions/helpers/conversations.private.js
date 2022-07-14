@@ -3,6 +3,14 @@ module.exports = function () {
 
   const Self = {};
 
+  Self.getSystemParticipantIdentity = function(identity) {
+    return `NotifyAgent.${identity}`;
+  }
+
+  Self.isSystemConversation = function(convo) {
+    return convo.friendlyName == 'System';
+  }
+
   /*
    * Look for the Conversation referenced in the inbound Conversation Webhook
    * so we can access its attributes
@@ -38,6 +46,18 @@ module.exports = function () {
             chatInstanceSid: InstanceSid
         })});
     return convo;
+  }
+
+  Self.createSystemConversation = async function(client, identity) {
+    console.log("Creating a system conversation for Frontline Worker notifications.");
+    const conversation = await client.conversations
+      .conversations.create({
+        friendlyName: "System",
+        attributes: JSON.stringify({isNotificationSystem:true})
+      });
+    await Self.addParticipant(client, conversation, {identity: Self.getSystemParticipantIdentity(identity)});
+    await Self.addParticipant(client, conversation, {identity: identity});
+    return conversation;
   }
 
   Self.updateConversation = async function(client, sid, attributes) {
@@ -102,6 +122,13 @@ module.exports = function () {
     }
   }
 
+  Self.getSystemConversation = async function(client, identity) {
+    let conversation = await Self.getConversationByParticipant(client, Self.getSystemParticipantIdentity(identity));
+    if(!conversation)
+      conversation = await Self.createSystemConversation(client, identity);
+    return conversation;
+  }
+
   Self.getLastConversationMessage = async function(frClient, convo) {
     console.log("Looking up the last message added to a conversation.");
     const messages = await frClient.conversations
@@ -154,12 +181,12 @@ module.exports = function () {
   /*
    * Replicates the Message resource from the Channel to the Conversation
    */
-  Self.postMessageToFrontlineConversation = async function(frClient, convo, participants, From, Body) {
+  Self.postMessageToFrontlineConversation = async function(frClient, convo, From, Body) {
     console.log("Posting a message to a conversation.");
-    await frClient.conversations.conversations(convo.sid)
+    await frClient.conversations.conversations(convo.sid||convo.conversationSid)
                       .messages
                       .create({author: From, body: Body})
-                      .catch(function(e) { /* do nothing */ })
+                      .catch(function(e) { console.log(e); })
   }
 
   /*

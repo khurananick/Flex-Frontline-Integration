@@ -6,30 +6,10 @@ exports.handler = async function (context, event, callback) {
   response.appendHeader('Access-Control-Allow-Origin', '*');
 
   const frClient = require("twilio")(process.env.FRONTLINE_ACCOUNT_SID, process.env.FRONTLINE_AUTH_TOKEN);
-  const systemParticipantIdentity = `NotifyAgent.${event.WorkerName}`;
   const conversations_helpers = require(Runtime.getFunctions()['helpers/conversations'].path)();
   const taskrouter_helpers = require(Runtime.getFunctions()['helpers/taskrouter'].path)();
 
   const responseObj = {};
-
-  async function createSystemConversation() {
-    console.log("Creating a system conversation for Frontline Worker notifications.");
-    const conversation = await frClient.conversations
-      .conversations.create({
-        friendlyName: "System",
-        attributes: JSON.stringify({isNotificationSystem:true})
-      });
-    await conversations_helpers.addParticipant(frClient, conversation, {identity: systemParticipantIdentity});
-    await conversations_helpers.addParticipant(frClient, conversation, {identity: event.WorkerName});
-    return conversation;
-  }
-
-  async function getSystemConversation() {
-    let conversation = await conversations_helpers.getConversationByParticipant(frClient, systemParticipantIdentity)
-    if(!conversation)
-      conversation = await createSystemConversation();
-    return conversation;
-  }
 
   // don't notify worker if already online.
   const worker = await taskrouter_helpers.getWorkerByIdentity(frClient, context.FRONTLINE_WORKSPACE_SID, event.WorkerName);
@@ -38,7 +18,7 @@ exports.handler = async function (context, event, callback) {
 
   if(!responseObj.available && event.EventType == "NotifyAgent") {
     // get default system conversation to post notifications into.
-    const conversation = await getSystemConversation();
+    const conversation = await conversations_helpers.getSystemConversation(frClient, event.WorkerName);
     const conversationSid = conversation.conversationSid || conversation.sid;
 
     // get the last message posted into the system conversation.
@@ -55,7 +35,7 @@ exports.handler = async function (context, event, callback) {
       await frClient.conversations.conversations(conversationSid)
         .messages
         .create({
-          author: systemParticipantIdentity,
+          author: conversations_helpers.getSystemParticipantIdentity(event.WorkerName),
           body: `Hey ${event.WorkerName}, someone is waiting to talk to you. Go online to see how it is!`
         })
         .catch(function(e) { })

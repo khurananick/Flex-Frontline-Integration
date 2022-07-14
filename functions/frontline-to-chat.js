@@ -32,10 +32,15 @@ exports.handler = async function (context, event, callback) {
   const convo = await conversations_helpers.findConversation(frClient, event.ConversationSid);
 
   if(event.EventType == "onMessageAdded") {
-    if(!conversations_helpers.hasChatChannelMapped(convo.attributes))
-      await chat_helpers.createChatForConversation(frClient, conversations_helpers, context, event)
+    if(conversations_helpers.isSystemConversation(convo)) {
+      // do things here.
+    }
+    else {
+      if(!conversations_helpers.hasChatChannelMapped(convo.attributes))
+        await chat_helpers.createChatForConversation(frClient, conversations_helpers, context, event)
 
-    await chat_helpers.postMessageToChatChannel(client, convo, event.ClientIdentity, event.Body);
+      await chat_helpers.postMessageToChatChannel(client, convo, event.ClientIdentity, event.Body);
+    }
   }
 
   /*

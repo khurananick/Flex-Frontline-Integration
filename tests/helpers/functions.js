@@ -128,7 +128,7 @@ module.exports = (function(client) {
       .reservations
       .list();
     for(const r of reservations) {
-      if(["accepted", "pending", "timeout","wrapping"].indexOf(r.reservationStatus)>=0) {
+      if(["accepted", "pending", "wrapping"].indexOf(r.reservationStatus)>=0) {
         await client.taskrouter.workspaces(wsid)
                  .workers(worker.sid)
                  .reservations(r.sid)
