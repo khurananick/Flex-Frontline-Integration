@@ -36,7 +36,7 @@ exports.handler = async function (context, event, callback) {
         frClient,
         systemConvo,
         conversations_helpers.getSystemParticipantIdentity(event.WorkerName),
-        "You have an incoming chat request. Would you like to accept? 1 for Yes, 2 for No."
+        "You have an incoming chat request(s). Would you like to accept? 1 for Yes, 2 for No."
       )
     }
     else {

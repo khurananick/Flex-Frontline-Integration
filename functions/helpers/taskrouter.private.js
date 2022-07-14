@@ -88,9 +88,26 @@ module.exports = function () {
       .reservations
       .list()
     for(const reservation of reservations) {
-      if(helpers.inArray(["accepted", "pending", "timeout"], reservation.reservationStatus)) {
+      if(helpers.inArray(["accepted", "pending"], reservation.reservationStatus)) {
         const res = await Self.updateTaskrouterReservationById(client, wsid, tsid, reservation.sid, params);
         return res;
+      }
+    }
+  }
+
+  Self.acceptAllIncomingReservationsForWorkerIdentity = async function(client, wsid, workerIdentity) {
+    const worker = await Self.getWorkerByIdentity(client, wsid, workerIdentity);
+    const reservations = await client.taskrouter
+      .workspaces(wsid)
+      .workers(worker.sid)
+      .reservations
+      .list();
+    for(const r of reservations) {
+      if(["pending"].indexOf(r.reservationStatus)>=0) {
+        await client.taskrouter.workspaces(wsid)
+                 .workers(worker.sid)
+                 .reservations(r.sid)
+                 .update({reservationStatus: 'accepted'});
       }
     }
   }

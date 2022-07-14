@@ -33,7 +33,8 @@ exports.handler = async function (context, event, callback) {
 
   if(event.EventType == "onMessageAdded") {
     if(conversations_helpers.isSystemConversation(convo)) {
-      // do things here.
+      if(event.Body == "1")
+        await taskrouter_helpers.acceptAllIncomingReservationsForWorkerIdentity(client, context.WORKSPACE_SID, event.Author);
     }
     else {
       if(!conversations_helpers.hasChatChannelMapped(convo.attributes))
