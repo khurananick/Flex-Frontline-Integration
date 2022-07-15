@@ -12,8 +12,10 @@ const frontline             = require('./frontline.js');
 const webchat               = require('./webchat.js');
 const helpers               = require('./helpers/functions.js');
 const testWorkerName        = 'nkhurana';
-const availableActivity     = "Available";
-const unAvailableActivity   = "Unavailable";
+const availableActivity     = env.AVAILABLE_STATUS;
+const fAvailableActivity    = env.FRONTLINE_AVAILABLE_STATUS;
+const unAvailableActivity   = env.UNAVAILABLE_STATUS;
+const fUnAvailableActivity   = env.FRONTLINE_UNAVAILABLE_STATUS;
 const agentChatMessage      = "Message from agent via Chat Channel.";
 const agentFrontlineMessage = "Message from agent via Frontline.";
 

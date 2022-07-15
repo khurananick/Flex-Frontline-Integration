@@ -48,7 +48,7 @@ module.exports = function () {
   /*
    * Sets the activity of the worker in taskrouter if new activity friendlyname is different
    */
-  Self.setTaskrouterWorkerActivity = async function(client, wsid, worker, activity) {
+  Self.setTaskrouterWorkerActivity = async function(client, wsid, worker, activity, newActivityName) {
     if(!activity || !activity.sid) return;
     if(worker.activityName == activity.friendlyName) return;
 
@@ -115,26 +115,27 @@ module.exports = function () {
   /*
    * Frontline has a separate activity for worker status which we can set as well.
    */
-  Self.updateFrontlineUserStatus = async function(client, worker, context, event) {
+  Self.updateFrontlineUserStatus = async function(client, worker, context, event, newActivityName) {
     if(!worker.attributes.userSid) return;
 
-    console.log("Updating Frontline Worker Availability.");
+    const isAvailable = (newActivityName == context.FRONTLINE_AVAILABLE_STATUS);
+    console.log("Updating Frontline Worker Availability.", isAvailable);
     const user = await client.frontlineApi
       .users(worker.attributes.userSid)
       .update({
-        isAvailable: (event.WorkerActivityName == context.FRONTLINE_AVAILABLE_STATUS)
+        isAvailable: isAvailable
       });
   }
 
   /*
    * Updates the worker's activity to the one set in the current webhook.
    */
-  Self.syncWorkerActivity = async function(client, wsid, context, event) {
+  Self.syncWorkerActivity = async function(client, wsid, newActivityName, context, event) {
     const worker = await Self.getWorkerByIdentity(client, wsid, event.WorkerName);
-    const activity = await Self.getActivityByName(client, wsid, event.WorkerActivityName);
+    const activity = await Self.getActivityByName(client, wsid, newActivityName);
 
-    await Self.setTaskrouterWorkerActivity(client, wsid, worker, activity);
-    await Self.updateFrontlineUserStatus(client, worker, context, event);
+    await Self.setTaskrouterWorkerActivity(client, wsid, worker, activity, newActivityName);
+    await Self.updateFrontlineUserStatus(client, worker, context, event, newActivityName);
   }
 
   Self.findTasksByFilters = async function(client, wsid, filters) {
@@ -143,6 +144,20 @@ module.exports = function () {
       .tasks
       .list(filters);
     return tasks;
+  }
+
+  Self.getMatchingFlexActivity = function(context, event) {
+    if(context.FRONTLINE_AVAILABLE_STATUS == event.WorkerActivityName)
+      return context.AVAILABLE_STATUS
+    else if (context.FRONTLINE_UNAVAILABLE_STATUS == event.WorkerActivityName)
+      return context.UNAVAILABLE_STATUS
+  }
+
+  Self.getMatchingFrontlineActivity = function(context, event) {
+    if(context.AVAILABLE_STATUS == event.WorkerActivityName)
+      return context.FRONTLINE_AVAILABLE_STATUS
+    else if (context.UNAVAILABLE_STATUS == event.WorkerActivityName)
+      return context.FRONTLINE_UNAVAILABLE_STATUS
   }
 
   return Self;

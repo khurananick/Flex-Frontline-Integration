@@ -88,17 +88,23 @@ exports.handler = async function (context, event, callback) {
    * to the same status.
    */
   else if(event.EventType == 'worker.activity.update') {
-    let client, wsid;
+    let client, wsid, activityName;
 
     if(event.AccountSid == context.FRONTLINE_ACCOUNT_SID) {
       client = context.getTwilioClient();
       wsid = context.WORKSPACE_SID;
-      await taskrouter_helpers.syncWorkerActivity(client, wsid, context, event);
+      activityName = taskrouter_helpers.getMatchingFlexActivity(context, event);
+
+      if(activityName)
+        await taskrouter_helpers.syncWorkerActivity(client, wsid, activityName, context, event);
     }
     else if(event.AccountSid == context.ACCOUNT_SID) {
       client = require("twilio")(context.FRONTLINE_ACCOUNT_SID, context.FRONTLINE_AUTH_TOKEN);
       wsid = context.FRONTLINE_WORKSPACE_SID;
-      await taskrouter_helpers.syncWorkerActivity(client, wsid, context, event);
+      activityName = taskrouter_helpers.getMatchingFrontlineActivity(context, event);
+
+      if(activityName)
+        await taskrouter_helpers.syncWorkerActivity(client, wsid, activityName, context, event);
     }
 
     callback(null, response);
