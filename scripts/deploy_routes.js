@@ -18,7 +18,7 @@ const baseurl = process.env.npm_config_route;
   await client.taskrouter.workspaces(process.env.WORKSPACE_SID)
       .update({
          eventCallbackUrl: `${baseurl}/taskrouter-handler`,
-         eventsFilter: 'reservation.created,reservation.accepted,worker.activity.update'
+         eventsFilter: 'reservation.created,reservation.accepted,task.created,worker.activity.update'
        })
        .catch(function(e) { console.log(e); });
 })();
@@ -38,7 +38,8 @@ const baseurl = process.env.npm_config_route;
   console.log("Setting Frontline TaskRouter Webhook.");
   await frClient.taskrouter.workspaces(process.env.FRONTLINE_WORKSPACE_SID)
       .update({
-         eventCallbackUrl: `${baseurl}/taskrouter-handler`
+         eventCallbackUrl: `${baseurl}/taskrouter-handler`,
+         eventsFilter: 'worker.activity.update'
        })
       .catch(function(e) { console.log(e); });
 })();

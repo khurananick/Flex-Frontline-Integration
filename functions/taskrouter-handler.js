@@ -110,6 +110,10 @@ exports.handler = async function (context, event, callback) {
     callback(null, response);
   }
 
+  else if (event.EventType == 'task.created') {
+    console.log(event);
+  }
+
   else callback(null, response);
   // doing this as an else so that the above setTimeout doesn't fail
 }
