@@ -4,14 +4,14 @@ module.exports = (function() {
 
   const Self = {};
 
-  Self.loadAndStartChatAsUser = async function () {
+  Self.loadAndStartChatAsUser = async function (timeStamp) {
     console.log("Starting browser chat session.");
     // open browser to the page hosting Flex WebChat.
     const browser = await puppeteer.launch({
       executablePath: '/usr/local/bin/chromium'
     });
     const page = await browser.newPage();
-    await page.goto('https://flex-chat-ui-with-config-9297-dev.twil.io/index.html');
+    await page.goto(`https://flex-chat-ui-with-config-9297-dev.twil.io/index.html?time=${timeStamp}`);
     // wait for chat button to show on page, then start chat.
     await page.waitForSelector("button.Twilio-EntryPoint");
     await page.click("button.Twilio-EntryPoint");

@@ -79,8 +79,11 @@ module.exports = function () {
         }
       }
     }
-    if(didClean)
-      await Self.updateChatChannelAttributes(client, {status: "INACTIVE"}, ChannelSid, InstanceSid);
+    if(didClean) {
+      const channel = await Self.findChatChannel(client, ChannelSid, InstanceSid);
+      channel.attributes.status = 'INACTIVE';
+      await Self.updateChatChannelAttributes(client, channel.attributes, ChannelSid, InstanceSid);
+    }
 
     return didClean;
   }

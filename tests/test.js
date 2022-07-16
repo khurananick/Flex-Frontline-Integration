@@ -19,7 +19,7 @@ const fUnAvailableActivity   = env.FRONTLINE_UNAVAILABLE_STATUS;
 const agentChatMessage      = "Message from agent via Chat Channel.";
 const agentFrontlineMessage = "Message from agent via Frontline.";
 
-let session, conversation, participants, channel, members, flexMessages, frontlineMessages;
+let session, conversation, participants, channel, members, flexMessages, frontlineMessages, timeStamp;
 const tests = [];
 
 const sleep = (milliseconds) => {
@@ -27,7 +27,7 @@ const sleep = (milliseconds) => {
 }
 
 async function loadResources() {
-  channel = await helpers.findChatChannel(client, env.CHAT_SERVICE_SID);
+  channel = await helpers.findChatChannel(client, env.CHAT_SERVICE_SID, timeStamp);
   members = await helpers.getChatChannelMembers(client, channel);
   conversation = await helpers.findConversation(frClient, testWorkerName);
   participants = await helpers.getConversationParticipants(frClient, conversation);
@@ -41,8 +41,10 @@ async function loadMessageResources() {
 async function startTestSession(sleepDelay) {
   await helpers.cleanupResources(client, frClient, env.WORKSPACE_SID, env.CHAT_SERVICE_SID, testWorkerName);
 
-  if(!TEST_CHANNEL_SMS)
-    session = await browser.loadAndStartChatAsUser();
+  if(!TEST_CHANNEL_SMS) {
+    timeStamp = new Date().getTime();
+    session = await browser.loadAndStartChatAsUser(timeStamp);
+  }
 
   await sleep(sleepDelay); // give it 5 seconds for data to replicate into both systems.
 

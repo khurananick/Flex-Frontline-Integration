@@ -68,15 +68,16 @@ module.exports = (function(client) {
     }
   };
 
-  Self.findChatChannel = async function(client, serviceSid) {
+  Self.findChatChannel = async function(client, serviceSid, timeStamp) {
     const channels = await client.chat.v2.services(serviceSid)
       .channels
       .list();
 
     for(const channel of channels) {
       channel.attributes = JSON.parse(channel.attributes);
-      if(channel.membersCount && channel.attributes.status == 'ACTIVE')
-        return channel;
+      if(channel.attributes.pre_engagement_data)
+        if(channel.attributes.pre_engagement_data.timestamp == timeStamp)
+          return channel;
     }
   };
 
