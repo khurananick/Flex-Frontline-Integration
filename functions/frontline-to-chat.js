@@ -59,7 +59,10 @@ exports.handler = async function (context, event, callback) {
         convo.attributes.TaskSid,
         {reservationStatus: 'completed'}
       );
-      callback(null, response);
+      setTimeout(async function() {
+        await chat_helpers.cleanupChatChannel(client, convo.attributes.chatChannelSid, convo.attributes.chatInstanceSid);
+        callback(null, response);
+      }, 2000);
     }
   }
 

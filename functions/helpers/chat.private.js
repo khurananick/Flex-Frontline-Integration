@@ -4,6 +4,7 @@ module.exports = function () {
   const Self = {};
 
   Self.createChatForConversation = async function(client, conversations_helpers, context, event) {
+    console.log('creating chat channel for conversation', event.ConversationSid);
     const createOutboundSMS = require(Runtime.getFunctions()['helpers/outbound-sms'].path);
     const participants = await conversations_helpers.fetchConversationParticipants(client, event.ConversationSid);
 
@@ -31,10 +32,10 @@ module.exports = function () {
   /*
    * Looks for the chat channel referenced in the inbound Chat Webhook
    */
-  Self.findChatChannel = async function(client, channelSid, serviceSid) {
-    console.log("Looking up a chat channel.");
+  Self.findChatChannel = async function(client, ChannelSid, serviceSid) {
+    console.log("Looking up a chat channel.", ChannelSid);
     const channel = await client.chat.v2.services(serviceSid)
-                .channels(channelSid)
+                .channels(ChannelSid)
                 .fetch()
     channel.attributes = JSON.parse(channel.attributes);
     return channel;
@@ -44,7 +45,7 @@ module.exports = function () {
    * Fetching participants who are part of the Chat Channel
    */
   Self.fetchChatChannelParticipants = async function(client, InstanceSid, ChannelSid) {
-    console.log("Looking up participants in the chat channel.");
+    console.log("Looking up participants in the chat channel.", ChannelSid);
     return await client.chat.v2.services(InstanceSid)
                 .channels(ChannelSid)
                 .members
@@ -52,7 +53,7 @@ module.exports = function () {
   }
 
   Self.addChannelParticipant = async function(client, InstanceSid, ChannelSid, identity, attributes) {
-    console.log('Adding a member to an existing channel');
+    console.log('Adding a member to an existing channel', ChannelSid);
     const mem = await client.chat.v2.services(InstanceSid)
                 .channels(ChannelSid)
                 .members
@@ -63,13 +64,26 @@ module.exports = function () {
     return mem;
   }
 
+  Self.cleanupChatChannel = async function(client, ChannelSid, InstanceSid) {
+    const participants = await Self.fetchChatChannelParticipants(client, InstanceSid, ChannelSid);
+    if(Self.channelHasAgent(participants)) {
+      console.log('cleaning up chat channel', ChannelSid);
+      for(const p of participants) {
+          await client.chat.v2.services(InstanceSid)
+              .channels(ChannelSid)
+              .members(p.sid)
+              .remove();
+      }
+    }
+  }
+
   /*
    * Updates the attributes of the Channel resource.
    */
-  Self.updateChatChannelAttributes = async function(client, params, channelSid, serviceSid) {
-    console.log("Updating a chat channel.");
+  Self.updateChatChannelAttributes = async function(client, params, ChannelSid, serviceSid) {
+    console.log("Updating a chat channel.", ChannelSid);
     const channel = await client.chat.v2.services(serviceSid)
-      .channels(channelSid)
+      .channels(ChannelSid)
       .update({attributes: JSON.stringify(params)});
     channel.attributes = JSON.parse(channel.attributes);
     return channel;
@@ -81,7 +95,7 @@ module.exports = function () {
   Self.postMessageToChatChannel = async function(client, convo, ClientIdentity, Body) {
     if(!convo.attributes.chatChannelSid) return;
 
-    console.log("Posting a message to a chat channel.");
+    console.log("Posting a message to a chat channel.", convo.attributes.chatChannelSid);
     await client.chat.v2.services(convo.attributes.chatInstanceSid)
       .channels(convo.attributes.chatChannelSid)
       .messages

@@ -23,7 +23,7 @@ module.exports = function () {
    * so we can access its attributes
    */
   Self.findConversation = async function(frClient, conversationSid) {
-    console.log("Looking up a conversation.");
+    console.log("Looking up a conversation.", conversationSid);
     const convo = await frClient.conversations
       .conversations(conversationSid)
       .fetch();
@@ -32,7 +32,7 @@ module.exports = function () {
   }
 
   Self.fetchConversationParticipants = async function(frClient, ConversationSid) {
-    console.log('Looking up participants in a conversation.');
+    console.log('Looking up participants in a conversation.', ConversationSid);
     const participants = await frClient.conversations
       .conversations(ConversationSid)
       .participants
@@ -52,6 +52,7 @@ module.exports = function () {
             chatChannelSid: ChannelSid,
             chatInstanceSid: InstanceSid
         })});
+    console.log("Created a conversation.", convo.sid);
     return convo;
   }
 
@@ -68,7 +69,7 @@ module.exports = function () {
   }
 
   Self.updateConversation = async function(client, sid, attributes) {
-    console.log('updating a conversation');
+    console.log('updating a conversation', sid);
     const convo = await client.conversations
       .conversations(sid)
       .update({attributes: JSON.stringify(attributes)})
@@ -86,7 +87,7 @@ module.exports = function () {
   }
 
   Self.addParticipant = async function(client, convo, attrs) {
-    console.log("Adding a participant to conversation.");
+    console.log("Adding a participant to conversation.", convo.sid);
     await client.conversations.conversations(convo.sid)
       .participants
       .create(attrs)
@@ -94,7 +95,7 @@ module.exports = function () {
   }
 
   Self.removeParticipant = async function(client, convo, psid) {
-    console.log("Removing a participant from conversation.");
+    console.log("Removing a participant from conversation.", convo.sid);
     await client.conversations.conversations(convo.sid)
       .participants(psid)
       .remove()
@@ -118,7 +119,7 @@ module.exports = function () {
   }
 
   Self.getConversationByParticipant = async function(client, identity) {
-    console.log("Looking up conversation by participant.");
+    console.log("Looking up conversation by participant.", identity);
     const conversations = await client.conversations
       .participantConversations
       .list({identity: identity, limit: 50});
@@ -147,7 +148,7 @@ module.exports = function () {
   }
 
   Self.getLastConversationMessage = async function(frClient, convo) {
-    console.log("Looking up the last message added to a conversation.");
+    console.log("Looking up the last message added to a conversation.", convo.sid);
     const messages = await frClient.conversations
       .conversations(convo.sid)
       .messages
@@ -199,7 +200,7 @@ module.exports = function () {
    * Replicates the Message resource from the Channel to the Conversation
    */
   Self.postMessageToFrontlineConversation = async function(frClient, convo, From, Body) {
-    console.log("Posting a message to a conversation.");
+    console.log("Posting a message to a conversation.", convo.sid, convo.conversationSid);
     await frClient.conversations.conversations(convo.sid||convo.conversationSid)
                       .messages
                       .create({author: From, body: Body})
@@ -211,7 +212,7 @@ module.exports = function () {
    * show up in the agent's frontline interface anymore.
    */
   Self.closeFrontlineConversation = async function(frClient, convo) {
-    console.log("Updating a conversation state.");
+    console.log("Updating a conversation state.", convo.sid);
     await frClient.conversations.conversations(convo.sid)
                     .update({state: "closed"})
                     .catch(function(e) { /* do nothing. */ });

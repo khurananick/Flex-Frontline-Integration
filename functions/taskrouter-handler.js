@@ -111,7 +111,22 @@ exports.handler = async function (context, event, callback) {
   }
 
   else if (event.EventType == 'task.created') {
-    console.log(event);
+    /*
+    const attrs = JSON.parse(event.TaskAttributes);
+
+    const createAndAcceptWorkerReservation = async function(workerName) {
+      const worker = await taskrouter_helpers.getWorkerByIdentity(client, context.WORKSPACE_SID, workerName);
+      if(worker.activityName == context.UNAVAILABLE_STATUS) {
+        const flWorker = await taskrouter_helpers.getWorkerByIdentity(frClient, context.FRONTLINE_WORKSPACE_SID, workerName);
+        console.log(flWorker);
+      }
+    }
+
+    if(attrs.webchat_worker)
+      setTimeout(createAndAcceptWorkerReservation, 3000, attrs.webchat_worker);
+    else if(attrs.pre_engagement_data.worker)
+      setTimeout(createAndAcceptWorkerReservation, 3000, attrs.pre_engagement_data.worker);
+    */
   }
 
   else callback(null, response);
