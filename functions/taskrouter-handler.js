@@ -60,7 +60,8 @@ exports.handler = async function (context, event, callback) {
       const participants = await chat_helpers.fetchChatChannelParticipants(client, channel.serviceSid, channel.sid);
 
       if(!chat_helpers.channelHasAgent(participants)) {
-        await chat_helpers.addChannelParticipant(client, channel.serviceSid, channel.sid, event.WorkerName, {member_type:'agent'})
+        const p = await chat_helpers.addChannelParticipant(client, channel.serviceSid, channel.sid, event.WorkerName, {member_type:'agent'})
+        participants.push(p);
       }
 
       if(chat_helpers.channelHasConversationMapped(channel)) {

@@ -66,15 +66,23 @@ module.exports = function () {
 
   Self.cleanupChatChannel = async function(client, ChannelSid, InstanceSid) {
     const participants = await Self.fetchChatChannelParticipants(client, InstanceSid, ChannelSid);
-    if(Self.channelHasAgent(participants)) {
-      console.log('cleaning up chat channel', ChannelSid);
-      for(const p of participants) {
+    let didClean;
+    for(let participant of participants) {
+      if(participant.attributes) {
+        if(JSON.parse(participant.attributes).member_type == "agent") {
+          console.log('removing agent during cleanup');
           await client.chat.v2.services(InstanceSid)
               .channels(ChannelSid)
-              .members(p.sid)
+              .members(participant.sid)
               .remove();
+          didClean = true;
+        }
       }
     }
+    if(didClean)
+      await Self.updateChatChannelAttributes(client, {status: "INACTIVE"}, ChannelSid, InstanceSid);
+
+    return didClean;
   }
 
   /*

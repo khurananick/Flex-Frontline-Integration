@@ -51,16 +51,18 @@ exports.handler = async function (context, event, callback) {
   if(event.EventType == "onConversationStateUpdated") {
     if(event.StateTo == "closed") {
       if(!convo.attributes.chatChannelSid) return;
-
-      const channel = await chat_helpers.findChatChannel(client, convo.attributes.chatChannelSid, convo.attributes.chatInstanceSid);
-      const res = await taskrouter_helpers.updateUncompleteTasksToCompleted(
-        client,
-        convo.attributes.WorkspaceSid,
-        convo.attributes.TaskSid,
-        {reservationStatus: 'completed'}
-      );
+      const markTaskComplete = async function() {
+        await taskrouter_helpers.updateUncompleteTasksToCompleted(
+          client,
+          convo.attributes.WorkspaceSid,
+          convo.attributes.TaskSid,
+          {reservationStatus: 'completed'}
+        )
+      };
+      const res = await markTaskComplete();
       setTimeout(async function() {
-        await chat_helpers.cleanupChatChannel(client, convo.attributes.chatChannelSid, convo.attributes.chatInstanceSid);
+        const hadToCleanUp = await chat_helpers.cleanupChatChannel(client, convo.attributes.chatChannelSid, convo.attributes.chatInstanceSid);
+        if(hadToCleanUp) markTaskComplete();
         callback(null, response);
       }, 2000);
     }

@@ -75,7 +75,7 @@ module.exports = (function(client) {
 
     for(const channel of channels) {
       channel.attributes = JSON.parse(channel.attributes);
-      if(channel.attributes.status == 'ACTIVE')
+      if(channel.membersCount && channel.attributes.status == 'ACTIVE')
         return channel;
     }
   };

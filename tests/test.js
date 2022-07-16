@@ -62,7 +62,7 @@ tests.push(async function() {
   // ensure agent is online.
   await helpers.setAgentStatus(client, env.WORKSPACE_SID, testWorkerName, availableActivity);
 
-  await startTestSession(5000);
+  await startTestSession(10000);
 
   // run the tests.
   await flex.testChatChannelExists(channel);
@@ -107,7 +107,7 @@ tests.push(async function() {
 
   await helpers.setAgentStatus(client, env.WORKSPACE_SID, testWorkerName, availableActivity);
 
-  await sleep(5000);
+  await sleep(10000);
 
   await loadResources();
 
