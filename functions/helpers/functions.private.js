@@ -55,7 +55,7 @@ module.exports = function () {
     return false;
   }
 
-  Self.proxyRequest = async function(url, context, event) {
+  Self.proxyRequest = async function(url, authToken, event) {
     // payload to replicate Default Webhook.
     const payload = Object.assign({}, event);
     delete payload.request;
@@ -63,7 +63,7 @@ module.exports = function () {
     // headers to replicate Default Webhook.
     const headers = Object.assign({}, event.request.headers);
     headers.host = ""
-    headers['x-twilio-signature'] = Self.generateXTwilioSignature(url, payload, context.AUTH_TOKEN);
+    headers['x-twilio-signature'] = Self.generateXTwilioSignature(url, payload, authToken);
 
     // replicate Default Webhook
     const axios   = require('axios');

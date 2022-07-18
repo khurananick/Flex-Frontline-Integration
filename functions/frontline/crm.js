@@ -65,7 +65,7 @@ exports.handler = async function (context, event, callback) {
     return callback(null, response)
   }
   else if(context.BACKUP_CRM_ENDPOINT) {
-    const proxy = await helpers.proxyRequest(context.BACKUP_CRM_ENDPOINT, context, event);
+    const proxy = await helpers.proxyRequest(context.BACKUP_CRM_ENDPOINT, context.FRONTLINE_AUTH_TOKEN, event);
     response.setBody(proxy.data);
     return callback(null, response);
   }

@@ -147,7 +147,7 @@ module.exports = function () {
    * then proxy that webhook from our endpoint to continue that functionality.
    */
   Self.replicateDefaultFlexWebhook = async function(context, event) {
-    const post = await helpers.proxyRequest(context.FLEX_CHAT_DEFAULT_WEBHOOK, context, event)
+    const post = await helpers.proxyRequest(context.FLEX_CHAT_DEFAULT_WEBHOOK, context.AUTH_TOKEN, event)
 
     if(post)
       console.log('Replicated Default Webhook status: ', post.status);
