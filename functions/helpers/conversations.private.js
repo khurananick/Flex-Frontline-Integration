@@ -47,8 +47,14 @@ module.exports = function () {
    */
   Self.createFrontlineConversation = async function(frClient, channel, InstanceSid, ChannelSid) {
     console.log("Creating a conversation.");
+    const displayName = (function() {
+      if(channel.attributes.channel_type == "web")
+        return channel.attributes.from||channel.attributes?.pre_engagement_data?.friendlyName||channel.friendlyName;
+      else
+        return channel.attributes?.pre_engagement_data?.friendlyName||channel.friendlyName;
+    })();
     const convo = await frClient.conversations.conversations
-        .create({friendlyName: (channel.attributes?.pre_engagement_data?.friendlyName||channel.friendlyName), attributes: JSON.stringify({
+        .create({friendlyName: displayName, attributes: JSON.stringify({
             chatChannelSid: ChannelSid,
             chatInstanceSid: InstanceSid
         })});
