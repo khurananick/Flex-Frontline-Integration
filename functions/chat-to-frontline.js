@@ -103,13 +103,23 @@ exports.handler = async function (context, event, callback) {
   if(helpers.inArray(["onMemberRemoved"], event.EventType)) {
     let channel = await chat_helpers.findChatChannel(client, event.ChannelSid, event.InstanceSid);
     if(chat_helpers.channelHasConversationMapped(channel)) { // create and map corresponding conversation if not exists
-      const participants = await chat_helpers.fetchChatChannelParticipants(client, event.InstanceSid, event.ChannelSid);
       const convo = {
         sid: channel.attributes.ConversationSid
       };
-      if(JSON.parse(event.Attributes).member_type == "agent")
-        if(!chat_helpers.channelHasAgent(participants))
+      if(JSON.parse(event.Attributes).member_type == "agent") {
+        // wait to make sure new agent isn't being added to chat.
+        await helpers.sleep(2000);
+        const participants = await chat_helpers.fetchChatChannelParticipants(client, event.InstanceSid, event.ChannelSid);
+        // check if channel still has an agent.
+        if(!chat_helpers.channelHasAgent(participants)) {
+          // if no new agent has been added, close the conversation.
           await conversations_helpers.closeFrontlineConversation(frClient, convo);
+        }
+        else {
+          // if a new agent has been added, remove this one.
+          await conversations_helpers.removeParticipantByIdentity(frClient, convo.sid, null, event.Identity);
+        }
+      }
     }
     callback(null, response);
   }

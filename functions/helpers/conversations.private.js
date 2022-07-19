@@ -108,6 +108,15 @@ module.exports = function () {
       .catch(function(e) { console.log(e); });
   }
 
+  Self.removeParticipantByIdentity = async function(client, convoSid, participants, identity) {
+    if(!participants)
+      participants = await Self.fetchConversationParticipants(client, convoSid);
+
+    for(const p of participants)
+      if(p.identity == identity)
+        return await Self.removeParticipant(client, {sid: convoSid}, p.sid);
+  }
+
   Self.replaceParticipant = async function(client, convo, attrs, psid) {
     await Self.addParticipant(client, convo, attrs);
     await Self.removeParticipant(client, convo, psid);

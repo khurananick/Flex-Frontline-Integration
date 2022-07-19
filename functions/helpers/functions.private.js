@@ -42,6 +42,10 @@ module.exports = function () {
     return arr.indexOf(val) >= 0
   }
 
+  Self.sleep = (milliseconds) => {
+    return new Promise(resolve => setTimeout(resolve, milliseconds))
+  }
+
   Self.isJson = function (item) {
     item = typeof item !== "string" ? JSON.stringify(item) : item;
 
