@@ -49,7 +49,7 @@ module.exports = function () {
     console.log("Creating a conversation.");
     const displayName = (function() {
       if(channel.attributes.channel_type == "web")
-        return channel.attributes.from||channel.attributes?.pre_engagement_data?.friendlyName||channel.friendlyName;
+        return channel.attributes?.from||channel.attributes?.pre_engagement_data?.friendlyName||channel.friendlyName;
       else
         return channel.attributes?.pre_engagement_data?.friendlyName||channel.friendlyName;
     })();
