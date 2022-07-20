@@ -33,13 +33,17 @@ exports.handler = async function (context, event, callback) {
 
   if(event.EventType == "onMessageAdded") {
     if(conversations_helpers.isSystemConversation(convo)) {
+      // if it is a "System" conversation, use the body to determine next step.
       if(event.Body == "1")
         await taskrouter_helpers.acceptAllIncomingReservationsForWorkerIdentity(client, context.WORKSPACE_SID, event.Author);
     }
     else {
-      if(!conversations_helpers.hasChatChannelMapped(convo.attributes))
+      // for non "System" Conversation, ensure there's a mapped channel.
+      // if not channel, we create the channel.
+      // then post the message to the Channel.
+      if(!conversations_helpers.hasChatChannelMapped(convo.attributes)) {
         await chat_helpers.createChatForConversation(frClient, conversations_helpers, context, event)
-
+      }
       await chat_helpers.postMessageToChatChannel(client, convo, event.ClientIdentity, event.Body);
     }
   }
@@ -48,7 +52,7 @@ exports.handler = async function (context, event, callback) {
    * If a conversation is closed from the frontline app
    * we'll close the chat channe in flex as well.
    */
-  if(event.EventType == "onConversationStateUpdated") {
+  else if(event.EventType == "onConversationStateUpdated") {
     if(event.StateTo == "closed") {
       if(!convo.attributes.chatChannelSid) return;
       const markTaskComplete = async function() {
@@ -68,14 +72,17 @@ exports.handler = async function (context, event, callback) {
     }
   }
 
-
-  if(event.EventType == "onConversationAdded") {
+  /*
+   * When a conversation is added, ensure has a mapped channel.
+   */
+  else if(event.EventType == "onConversationAdded") {
     // if conversation already has channel, then skip this
     const attrs = event.ConversationAttributes;
     if(attrs)
       if(conversations_helpers.hasChatChannelMapped(JSON.parse(attrs)))
         return;
 
+    // if channel doesn't exist, create it
     await chat_helpers.createChatForConversation(frClient, conversations_helpers, context, event)
   }
 }

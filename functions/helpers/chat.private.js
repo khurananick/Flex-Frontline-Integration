@@ -17,6 +17,13 @@ module.exports = function () {
     const { smsParticipants, chatParticipants } = await conversations_helpers.extractParticipantsByChannel(participants);
 
     if(smsParticipants[0]) {
+      // relace the sms participant with chat identity
+      await conversations_helpers.replaceParticipant(
+        client, {sid: event.ConversationSid}, {
+          identity: smsParticipants[0].sid,
+          attributes: JSON.stringify({ToNumber: smsParticipants[0].messagingBinding.address})
+        }, smsParticipants[0].sid
+      );
       // create the outbound sms channel in flex project.
       event.ToName = event.FriendlyName;
       event.ToNumber = smsParticipants[0].messagingBinding.address;
@@ -28,10 +35,6 @@ module.exports = function () {
         chatChannelSid: newChannel.sid,
         chatInstanceSid: newChannel.serviceSid
       });
-      // relace the sms participant with chat identity
-      await conversations_helpers.replaceParticipant(
-        client, {sid: event.ConversationSid}, {identity: smsParticipants[0].sid}, smsParticipants[0].sid
-      );
     }
   }
 
