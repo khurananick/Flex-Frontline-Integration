@@ -46,9 +46,9 @@ Channels: Chat and SMS only. Voice to come soon.
 		* AJAX request from the client page.
 * **/frontline-to-chat**: 
 	* Triggers
-		* **onMessageAdded** - posts the message back to chat channel.
+		* **onMessageAdded** - posts the message back to chat channel. Creates channel if not exists.
 		* **onConversationStateUpdated** - if closed, closes the channel.
-		* **onConversationAdded** - pending.
+		* **onConversationAdded** - create the corresponding Chat Channel.
 * **/taskrouter-handler**: 
 	* Triggers
 		* **reservation.created** - sets reservation to accepted if auto accept is enabled.

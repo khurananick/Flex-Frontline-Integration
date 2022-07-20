@@ -56,7 +56,6 @@ exports.handler = async function (context, event, callback) {
   else if(event.EventType == 'reservation.accepted') {
     if(event.TaskChannelUniqueName == "voice") return;
     const updateChannelAndConversationAttrs = async function() {
-      // running this on a delay so the api has time to create channel, participants and stuff
       const ChannelSid = JSON.parse(event.TaskAttributes).channelSid;
       let channel = await chat_helpers.findChatChannel(client, ChannelSid, context.CHAT_SERVICE_SID);
       const participants = await chat_helpers.fetchChatChannelParticipants(client, channel.serviceSid, channel.sid);
@@ -78,11 +77,15 @@ exports.handler = async function (context, event, callback) {
         });
       }
       else {
-        setTimeout(updateChannelAndConversationAttrs, 1500);
+        // in case the channel still doesn't have a conversation
+        // give it another couple of seconds to try again.
+        setTimeout(updateChannelAndConversationAttrs, 2000);
       }
     }
 
-    setTimeout(updateChannelAndConversationAttrs, 3000);
+    // give Chat Channel a few seconds to add agent to 
+    // the Channel as a member, then run the logic.
+    setTimeout(updateChannelAndConversationAttrs, 2000);
   }
 
   /*
