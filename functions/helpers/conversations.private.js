@@ -5,7 +5,7 @@ module.exports = function () {
 
   Self.formatChatIdentity = function(identity) {
     if(identity)
-      return identity.replaceAll("_5F","_").replaceAll("_40","@").replaceAll("_2E",".");
+      return identity.replace(/_5F/g,"_").replace(/_40/g,"@").replace(/_2E/g,".");
     return identity;
   }
 
