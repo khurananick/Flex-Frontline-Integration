@@ -30,6 +30,7 @@ exports.handler = async function (context, event, callback) {
    * going to be responsible for responding.
    */
   if(event.EventType == 'reservation.created') {
+    if(event.TaskChannelUniqueName == "voice") return;
     if(!context.AUTO_ACCEPT_TASKS || context.AUTO_ACCEPT_TASKS != 'true') {
       const systemConvo = await conversations_helpers.getSystemConversation(frClient, event.WorkerName);
       await conversations_helpers.postMessageToFrontlineConversation(
