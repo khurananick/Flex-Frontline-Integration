@@ -38,8 +38,8 @@ Channels: Chat and SMS only. Voice to come soon.
 
 * **/chat-to-frontline**: Prog Chat webhook from the Flex project.
 	* Triggers
-		* **onMessageSent** - everytime a message is posted to the channel, we confirm if the channel has a corresponding conversation (create if not), then post the message to the conversation.
-		* **onMemberRemoved** - if there are no agents left in the chat, we close the conversation.
+		* **onMessageSent** - everytime a message is posted to the channel, we confirm if the channel has a corresponding Conversation (create if not), then post the message to the conversation.
+		* **onMemberRemoved** - if the member removed from chat is an agent, we remove that member from the corresponding Conversation.
 		* **onMessageSent, onChannelUpdated, onChannelDestroyed** - default events that come with the project. We're simply proxying these to the default URL.
 * **/check-agent-availability** *(optional)*: Checks if the agent is online. If not, sends a system notification to the agent to alert them. 
 	* Triggers

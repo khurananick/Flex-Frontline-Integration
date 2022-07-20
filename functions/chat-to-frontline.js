@@ -70,15 +70,12 @@ exports.handler = async function (context, event, callback) {
       convo = await conversations_helpers.createFrontlineConversation(frClient, channel, event.InstanceSid, event.ChannelSid);
       channel.attributes.ConversationSid = convo.sid;
       channel.attributes.ConversationServiceSid = convo.chatServiceSid;
-
       channel = await chat_helpers.updateChatChannelAttributes(client, channel.attributes, channel.sid, channel.serviceSid);
     }
     // set a generic convo object if Corresponding conversation already exists
     // so we can use the same syntax to reference the sid later.
     else {
-      convo = {
-        sid: channel.attributes.ConversationSid
-      };
+      convo = { sid: channel.attributes.ConversationSid };
     }
 
     // create and map corresponding Participants to the Conversation if not exists
@@ -86,12 +83,6 @@ exports.handler = async function (context, event, callback) {
 
     // post this Message resource to the Conversation
     await conversations_helpers.postMessageToFrontlineConversation(frClient, convo, event.From, event.Body);
-
-    /* DONT THINK THIS IS NEEDED REMOVE IF NO BUGS FOUND
-    // retry if no agent.
-    if(!chat_helpers.channelHasAgent(participants))
-      await conversations_helpers.retrySync(client, frClient, chat_helpers, convo, participants, channel);
-   */
   }
 
   /*
@@ -100,16 +91,12 @@ exports.handler = async function (context, event, callback) {
    * if no agent is present in the Channel anymore, we close out the corresponding 
    * Conversation by changing the state
    */
-  if(helpers.inArray(["onMemberRemoved"], event.EventType)) {
+  else if(helpers.inArray(["onMemberRemoved"], event.EventType)) {
     let channel = await chat_helpers.findChatChannel(client, event.ChannelSid, event.InstanceSid);
-    if(chat_helpers.channelHasConversationMapped(channel)) { // create and map corresponding conversation if not exists
-      const convo = {
-        sid: channel.attributes.ConversationSid
-      };
-      if(JSON.parse(event.Attributes).member_type == "agent") {
-        await conversations_helpers.removeParticipantByIdentity(frClient, convo.sid, null, event.Identity);
-      }
-    }
+
+    if(chat_helpers.channelHasConversationMapped(channel))
+      await conversations_helpers.removeParticipantByIdentity(frClient, channel.attributes.ConversationSid, null, event.Identity);
+
     callback(null, response);
   }
 
