@@ -3,9 +3,9 @@
 
 # Flex + Frontline Integration
 
-This simple web app takes webhooks from the Programmable Chat API used in the Twilio Flex project and webhooks Conversations API in the Frontline project to sync the two resources together with messages posted by participants.
+This Twilio Serverless app takes webhooks from the Programmable Chat API used in the Twilio Flex project and webhooks from the Conversations API used in the Frontline project to sync the two resources together with messages posted by participants.
 
-This app assumes that the Flex Project and Frontline Project are two entire separate Projects/Accounts, and that the Worker in the Flex Project has the same username as the user in the Frontline project. 
+This app assumes that the Flex Project and the Frontline Project are two entire separate Projects/Accounts, and that the Worker in the Flex Project has the same username as the user in the Frontline project. 
 
 ## Demo Video
 
@@ -16,6 +16,14 @@ This app assumes that the Flex Project and Frontline Project are two entire sepa
 You must have a working Flex Account and a working Frontline Account.
 You should deploy this application only to your Flex Account.
 
+## Covered Use Cases and Channels
+Channels: Chat and SMS only. Voice to come soon.
+1. When a reservation is created in Flex, a notification is sent over Frontline to the agent as well.
+2. The agent can accept the task in Flex or in Frontline. 
+3. Once a task is accepted in flex, the chat/conversation will also show in Frontline.
+4. Agent can receive messages via Flex or Frontline, and respond from either interface as well. 
+5. Agent can transfer the chat in Flex (*not available in Frontline yet*). The transferred chat will be reflected on the Frontline side.
+6. Agent can end the chat/conversation from either Flex or Frontline, and the other project will update automatically.
 ## Architecture
 
 <h4 align="center">Action > Webhook > Replication</h4></h4>
