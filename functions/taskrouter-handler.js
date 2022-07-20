@@ -54,6 +54,7 @@ exports.handler = async function (context, event, callback) {
   }
 
   else if(event.EventType == 'reservation.accepted') {
+    if(event.TaskChannelUniqueName == "voice") return;
     const updateChannelAndConversationAttrs = async function() {
       // running this on a delay so the api has time to create channel, participants and stuff
       const ChannelSid = JSON.parse(event.TaskAttributes).channelSid;
