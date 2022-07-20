@@ -3,6 +3,12 @@ module.exports = function () {
 
   const Self = {};
 
+  Self.formatChatIdentity = function(identity) {
+    if(identity)
+      return identity.replaceAll("@","_40").replaceAll(".","_2E");
+    return identity;
+  }
+
   Self.createChatForConversation = async function(client, conversations_helpers, context, event) {
     console.log('creating chat channel for conversation', event.ConversationSid);
     const createOutboundSMS = require(Runtime.getFunctions()['helpers/outbound-sms'].path);
@@ -14,7 +20,7 @@ module.exports = function () {
       // create the outbound sms channel in flex project.
       event.ToName = event.FriendlyName;
       event.ToNumber = smsParticipants[0].messagingBinding.address;
-      event.TargetWorker = chatParticipants[0].identity;
+      event.TargetWorker = Self.formatChatIdentity(chatParticipants[0].identity);
       const outboundSMS = await createOutboundSMS(context, event);
       const { newChannel } = outboundSMS;
       // map conversation to channel
@@ -58,7 +64,7 @@ module.exports = function () {
                 .channels(ChannelSid)
                 .members
                 .create({
-                  identity: identity,
+                  identity: Self.formatChatIdentity(identity),
                   attributes: JSON.stringify(attributes)
                 })
     return mem;
@@ -111,7 +117,7 @@ module.exports = function () {
       .channels(convo.attributes.chatChannelSid)
       .messages
       .create({
-        from: ClientIdentity,
+        from: Self.formatChatIdentity(ClientIdentity),
         body: Body,
         attributes: JSON.stringify({ AddedViaConversationWebhook: true })
       })

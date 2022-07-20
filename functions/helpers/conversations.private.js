@@ -3,6 +3,12 @@ module.exports = function () {
 
   const Self = {};
 
+  Self.formatChatIdentity = function(identity) {
+    if(identity)
+      return identity.replaceAll("_5F","_").replaceAll("_40","@").replaceAll("_2E",".");
+    return identity;
+  }
+
   Self.getSystemParticipantIdentity = function(identity) {
     return `NotifyAgent.${identity}`;
   }
@@ -183,12 +189,13 @@ module.exports = function () {
                         })
 
     for(const participant of participants) {
-      if(!helpers.inArray(convoParticipants, participant.identity)) {
+      const chatIdentity = Self.formatChatIdentity(participant.identity)
+      if(!helpers.inArray(convoParticipants, chatIdentity)) {
         channel.attributes.customer_id = JSON.stringify({
           p: participant.sid, c: channel.sid
         });
         let p = await Self.addParticipant(frClient, convo, {
-          identity: participant.identity,
+          identity: chatIdentity,
           attributes: JSON.stringify(channel.attributes)
         })
       }
@@ -218,7 +225,7 @@ module.exports = function () {
     console.log("Posting a message to a conversation.", convo.sid, convo.conversationSid);
     await frClient.conversations.conversations(convo.sid||convo.conversationSid)
                       .messages
-                      .create({author: From, body: Body})
+                      .create({author: Self.formatChatIdentity(From), body: Body})
                       .catch(function(e) { console.log(e); })
   }
 
