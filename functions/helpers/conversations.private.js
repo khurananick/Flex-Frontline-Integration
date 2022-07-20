@@ -18,6 +18,7 @@ module.exports = function () {
   }
 
   Self.hasParticipant = function(participants, identity) {
+    identity = Self.formatChatIdentity(identity);
     for(const p of participants) {
       if(p.identity == identity) return true;
     }
@@ -69,6 +70,7 @@ module.exports = function () {
   }
 
   Self.createSystemConversation = async function(client, identity) {
+    identity = Self.formatChatIdentity(identity);
     console.log("Creating a system conversation for Frontline Worker notifications.");
     const conversation = await client.conversations
       .conversations.create({
@@ -115,6 +117,7 @@ module.exports = function () {
   }
 
   Self.removeParticipantByIdentity = async function(client, convoSid, participants, identity) {
+    identity = Self.formatChatIdentity(identity);
     if(!participants)
       participants = await Self.fetchConversationParticipants(client, convoSid);
 
@@ -141,6 +144,7 @@ module.exports = function () {
 
   Self.getConversationByParticipant = async function(client, identity) {
     console.log("Looking up conversation by participant.", identity);
+    identity = Self.formatChatIdentity(identity);
     const conversations = await client.conversations
       .participantConversations
       .list({identity: identity, limit: 50});
@@ -152,6 +156,7 @@ module.exports = function () {
   }
 
   Self.getSystemConversation = async function(client, identity) {
+    identity = Self.formatChatIdentity(identity);
     let conversation = await Self.getConversationByParticipant(client, Self.getSystemParticipantIdentity(identity));
 
     if(!conversation) {
