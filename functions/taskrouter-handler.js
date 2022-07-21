@@ -31,16 +31,7 @@ exports.handler = async function (context, event, callback) {
    */
   if(event.EventType == 'reservation.created') {
     if(event.TaskChannelUniqueName == "voice") return;
-    if(!context.AUTO_ACCEPT_TASKS || context.AUTO_ACCEPT_TASKS != 'true') {
-      const systemConvo = await conversations_helpers.getSystemConversation(frClient, event.WorkerName);
-      await conversations_helpers.postMessageToFrontlineConversation(
-        frClient,
-        systemConvo,
-        conversations_helpers.getSystemParticipantIdentity(event.WorkerName),
-        "You have an incoming chat request(s). Would you like to accept? 1 for Yes, 2 for No."
-      )
-    }
-    else {
+    if((context.AUTO_ACCEPT_TASKS && context.AUTO_ACCEPT_TASKS == 'true') || JSON.parse(event.TaskAttributes).transferTargetType) {
       await taskrouter_helpers.updateTaskrouterReservationById(
         client,
         event.WorkspaceSid,
@@ -48,6 +39,15 @@ exports.handler = async function (context, event, callback) {
         event.ResourceSid,
         {reservationStatus: 'accepted'}
       );
+    }
+    else {
+      const systemConvo = await conversations_helpers.getSystemConversation(frClient, event.WorkerName);
+      await conversations_helpers.postMessageToFrontlineConversation(
+        frClient,
+        systemConvo,
+        conversations_helpers.getSystemParticipantIdentity(event.WorkerName),
+        "You have an incoming chat request(s). Would you like to accept? 1 for Yes, 2 for No."
+      )
     }
 
     callback(null, response);

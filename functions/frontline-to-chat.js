@@ -85,4 +85,21 @@ exports.handler = async function (context, event, callback) {
     // if channel doesn't exist, create it
     await chat_helpers.createChatForConversation(frClient, conversations_helpers, context, event)
   }
+
+  else if (event.EventType == "onConversationUpdated") {
+    if(event.State == "closed") return;
+
+    const attributes = JSON.parse(event.Attributes);
+    if(!attributes.TaskSid) return;
+
+    const frontlineEvents = attributes['frontline.events'];
+    const lastEvent = frontlineEvents ? frontlineEvents[frontlineEvents.length-1] : null;
+
+    if(lastEvent && lastEvent.to && lastEvent.from && (new Date().getTime() - lastEvent.date) < 5000) {
+      const chat_transfer_helper = require(Runtime.getFunctions()['helpers/task-transfer'].path)();
+      const worker = await taskrouter_helpers.getWorkerByIdentity(client, context.WORKSPACE_SID, lastEvent.to);
+      await chat_helpers.removeChannelParticipant(client, context.CHAT_SERVICE_SID, attributes.chatChannelSid, lastEvent.from);
+      await chat_transfer_helper.transfer(client, context.WORKSPACE_SID, context.WORKFLOW_SID, attributes.TaskSid, worker.sid, worker.friendlyName);
+    }
+  }
 }

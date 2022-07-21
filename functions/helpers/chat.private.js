@@ -73,6 +73,19 @@ module.exports = function () {
     return mem;
   }
 
+  Self.removeChannelParticipant = async function(client, InstanceSid, ChannelSid, identity) {
+    console.log('Removing member from existin channel', ChannelSid);
+    identity = Self.formatChatIdentity(identity);
+    const participants = await Self.fetchChatChannelParticipants(client, InstanceSid, ChannelSid);
+    for(const p of participants) {
+      if(p.identity == identity)
+        await client.chat.v2.services(InstanceSid)
+                .channels(ChannelSid)
+                .members(p.sid)
+                .remove();
+    }
+  }
+
   Self.cleanupChatChannel = async function(client, ChannelSid, InstanceSid) {
     const participants = await Self.fetchChatChannelParticipants(client, InstanceSid, ChannelSid);
     let didClean;

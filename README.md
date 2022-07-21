@@ -49,6 +49,7 @@ Channels: Chat and SMS only. Voice to come soon.
 		* **onMessageAdded** - posts the message back to chat channel. Creates channel if not exists.
 		* **onConversationStateUpdated** - if closed, closes the channel.
 		* **onConversationAdded** - create the corresponding Chat Channel.
+		* **onConversationUpdated ** - this is different from state updated. we use this event to transfer tasks
 * **/taskrouter-handler**: 
 	* Triggers
 		* **reservation.created** - sets reservation to accepted if auto accept is enabled.
