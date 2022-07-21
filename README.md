@@ -22,7 +22,7 @@ Channels: Chat and SMS only. Voice to come soon.
 2. The agent can accept the task in Flex or in Frontline. 
 3. Once a task is accepted in flex, the chat/conversation will also show in Frontline.
 4. Agent can receive messages via Flex or Frontline, and respond from either interface as well. 
-5. Agent can transfer the chat in Flex (*not available in Frontline yet*). The transferred chat will be reflected on the Frontline side.
+5. Agent can transfer the chat in Flex or Frontline.
 6. Agent can end the chat/conversation from either Flex or Frontline, and the other project will update automatically.
 ## Architecture
 
