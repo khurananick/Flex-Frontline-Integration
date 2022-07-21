@@ -31,7 +31,7 @@ exports.handler = async function (context, event, callback) {
    */
   if(event.EventType == 'reservation.created') {
     if(event.TaskChannelUniqueName == "voice") return;
-    if((context.AUTO_ACCEPT_TASKS && context.AUTO_ACCEPT_TASKS == 'true') || JSON.parse(event.TaskAttributes).transferTargetType) {
+    if((context.AUTO_ACCEPT_TASKS && context.AUTO_ACCEPT_TASKS == 'true')/* || JSON.parse(event.TaskAttributes).transferTargetType*/) {
       await taskrouter_helpers.updateTaskrouterReservationById(
         client,
         event.WorkspaceSid,
