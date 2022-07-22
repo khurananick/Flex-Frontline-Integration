@@ -18,12 +18,12 @@ You should deploy this application only to your Flex Account.
 
 ## Covered Use Cases and Channels
 Channels: Chat and SMS only. Voice to come soon.
-1. When a reservation is created in Flex, a notification is sent over Frontline to the agent as well.
-2. The agent can accept the task in Flex or in Frontline. 
-3. Once a task is accepted in flex, the chat/conversation will also show in Frontline.
-4. Agent can receive messages via Flex or Frontline, and respond from either interface as well. 
-5. Agent can transfer the chat in Flex or Frontline.
-6. Agent can end the chat/conversation from either Flex or Frontline, and the other project will update automatically.
+1. When a reservation is created in Flex, a notification is sent over Frontline to the agent as well. Agents can accept the reservation via Flex or Frontline.
+2. Chat can be started in Flex and will be reflected in Frontline. Conversation can be started in Frontline and will be reflected in Flex.
+3. Agents can send/receive messages via Flex or Frontline.
+4. Agents can transfer the Chat/Conversation to another agent from Flex or Frontline.
+5. Agents can end the Chat/Conversation from either Flex or Frontline, and the other project will update automatically.
+
 ## Architecture
 
 <h4 align="center">Action > Webhook > Replication</h4></h4>
