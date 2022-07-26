@@ -83,18 +83,18 @@ exports.handler = async function (context, event, callback) {
         return;
 
     // if channel doesn't exist, create it
-    async function tryCreateConversation() {
+    async function tryCreateChatChannel() {
       const participants = await conversations_helpers.fetchConversationParticipants(frClient, event.ConversationSid);
 
       if(participants.length < 2) {
-        setTimeout(tryCreateConversation, 2000);
+        setTimeout(tryCreateChatChannel, 2000);
       }
       else {
         await chat_helpers.createChatForConversation(frClient, conversations_helpers, context, event, participants)
       }
     }
 
-    setTimeout(tryCreateConversation, 100);
+    setTimeout(tryCreateChatChannel, 100);
   }
 
   else if (event.EventType == "onConversationUpdated") {
