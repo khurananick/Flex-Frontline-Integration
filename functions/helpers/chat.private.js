@@ -4,8 +4,11 @@ module.exports = function () {
   const Self = {};
 
   Self.formatChatIdentity = function(identity) {
-    if(identity)
+    if(identity) {
+      if(identity.match("_") && !identity.match("_5F"))
+        return identity.replace(/_/g,"_5F").replace(/@/g,"_40").replace(/\./g,"_2E");
       return identity.replace(/@/g,"_40").replace(/\./g,"_2E");
+    }
     return identity;
   }
 
