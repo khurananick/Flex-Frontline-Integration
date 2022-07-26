@@ -9,10 +9,12 @@ module.exports = function () {
     return identity;
   }
 
-  Self.createChatForConversation = async function(client, conversations_helpers, context, event) {
-    console.log('creating chat channel for conversation', event.ConversationSid);
+  Self.createChatForConversation = async function(client, conversations_helpers, context, event, participants) {
+    console.log('Creating chat channel for conversation', event.ConversationSid);
     const createOutboundSMS = require(Runtime.getFunctions()['helpers/outbound-sms'].path);
-    const participants = await conversations_helpers.fetchConversationParticipants(client, event.ConversationSid);
+
+    if(!participants)
+      participants = await conversations_helpers.fetchConversationParticipants(client, event.ConversationSid);
 
     const { smsParticipants, chatParticipants } = await conversations_helpers.extractParticipantsByChannel(participants);
 
