@@ -106,7 +106,7 @@ exports.handler = async function (context, event, callback) {
     const frontlineEvents = attributes['frontline.events'];
     const lastEvent = frontlineEvents ? frontlineEvents[frontlineEvents.length-1] : null;
 
-    if(lastEvent && lastEvent.to && lastEvent.from && (new Date().getTime() - lastEvent.date) < 5000) {
+    if(lastEvent && lastEvent.to && lastEvent.from && (new Date(event.DateUpdated).getTime() - lastEvent.date) < 1000) {
       const chat_transfer_helper = require(Runtime.getFunctions()['helpers/task-transfer'].path)();
       const worker = await taskrouter_helpers.getWorkerByIdentity(client, context.WORKSPACE_SID, lastEvent.to);
       await conversations_helpers.removeParticipantByIdentity(frClient, event.ConversationSid, null, lastEvent.to);
