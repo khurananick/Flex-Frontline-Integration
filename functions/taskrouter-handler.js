@@ -55,6 +55,7 @@ exports.handler = async function (context, event, callback) {
 
   else if(event.EventType == 'reservation.accepted') {
     if(event.TaskChannelUniqueName == "voice") return;
+
     const updateChannelAndConversationAttrs = async function() {
       const ChannelSid = JSON.parse(event.TaskAttributes).channelSid;
       let channel = await chat_helpers.findChatChannel(client, ChannelSid, context.CHAT_SERVICE_SID);
@@ -77,9 +78,20 @@ exports.handler = async function (context, event, callback) {
         });
       }
       else {
-        // in case the channel still doesn't have a conversation
-        // give it another couple of seconds to try again.
-        setTimeout(updateChannelAndConversationAttrs, 2000);
+        // if the Chat Channel doesn't have a Conversation, we 
+        // create the Conversation, then add all of the Messages
+        // from the Chat Channel to the Conversation
+        // then synch the participants between the Channel and Conversation
+        const worker = await taskrouter_helpers.getWorkerByIdentity(frClient, context.FRONTLINE_WORKSPACE_SID, event.WorkerName);
+        if(worker) {
+          convo = await conversations_helpers.createFrontlineConversation(frClient, channel, channel.serviceSid, channel.sid);
+          channel.attributes.ConversationSid = convo.sid;
+          channel.attributes.ConversationServiceSid = convo.chatServiceSid;
+          channel = await chat_helpers.updateChatChannelAttributes(client, channel.attributes, channel.sid, channel.serviceSid);
+          const messages = await chat_helpers.fetchChannelMessages(client, channel.serviceSid, channel.sid);
+          await conversations_helpers.postAllMessagesToConversation(frClient, convo, messages);
+          await conversations_helpers.addParticipantsToConversation(frClient, convo, participants, channel);
+          }
       }
     }
 

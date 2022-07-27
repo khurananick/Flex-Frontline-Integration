@@ -235,6 +235,15 @@ module.exports = function () {
   }
 
   /*
+   * Takes an array of messages posted in a Channel, and replicates the messages into a Conversation.
+   */
+  Self.postAllMessagesToConversation = async function(frClient, convo, messages) {
+    for(const message of messages) {
+      await Self.postMessageToFrontlineConversation(frClient, convo, message.from, message.body);
+    }
+  }
+
+  /*
    * Setting the state of the Conversation as closed so it doesn't
    * show up in the agent's frontline interface anymore.
    */

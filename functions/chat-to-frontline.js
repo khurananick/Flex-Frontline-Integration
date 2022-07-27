@@ -65,24 +65,14 @@ exports.handler = async function (context, event, callback) {
     let channel = await chat_helpers.findChatChannel(client, event.ChannelSid, event.InstanceSid);
     const participants = await chat_helpers.fetchChatChannelParticipants(client, channel.serviceSid, channel.sid);
 
-    // create and map corresponding Conversation if not exists
-    if(!chat_helpers.channelHasConversationMapped(channel)) {
-      convo = await conversations_helpers.createFrontlineConversation(frClient, channel, event.InstanceSid, event.ChannelSid);
-      channel.attributes.ConversationSid = convo.sid;
-      channel.attributes.ConversationServiceSid = convo.chatServiceSid;
-      channel = await chat_helpers.updateChatChannelAttributes(client, channel.attributes, channel.sid, channel.serviceSid);
-    }
-    // set a generic convo object if Corresponding conversation already exists
-    // so we can use the same syntax to reference the sid later.
-    else {
+    // if conversation exists, post message to it.
+    if(chat_helpers.channelHasConversationMapped(channel)) {
       convo = { sid: channel.attributes.ConversationSid };
+      // create and map corresponding Participants to the Conversation if not exists
+      await conversations_helpers.addParticipantsToConversation(frClient, convo, participants, channel);
+      // post this Message resource to the Conversation
+      await conversations_helpers.postMessageToFrontlineConversation(frClient, convo, event.From, event.Body);
     }
-
-    // create and map corresponding Participants to the Conversation if not exists
-    await conversations_helpers.addParticipantsToConversation(frClient, convo, participants, channel);
-
-    // post this Message resource to the Conversation
-    await conversations_helpers.postMessageToFrontlineConversation(frClient, convo, event.From, event.Body);
   }
 
   /*

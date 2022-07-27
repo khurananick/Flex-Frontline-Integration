@@ -66,6 +66,17 @@ module.exports = function () {
                 .list({limit: 1000})
   }
 
+  /*
+   * Fetching all messages from a Channel
+   */
+  Self.fetchChannelMessages = async function(client, InstanceSid, ChannelSid) {
+    console.log("Fetching all channel messages.", ChannelSid);
+    return await client.chat.v2.services(InstanceSid)
+                .channels(ChannelSid)
+                .messages
+                .list({limit: 1000})
+  }
+
   Self.addChannelParticipant = async function(client, InstanceSid, ChannelSid, identity, attributes) {
     console.log('Adding a member to an existing channel', ChannelSid);
     const mem = await client.chat.v2.services(InstanceSid)
