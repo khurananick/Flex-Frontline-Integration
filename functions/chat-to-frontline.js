@@ -71,7 +71,7 @@ exports.handler = async function (context, event, callback) {
       // create and map corresponding Participants to the Conversation if not exists
       await conversations_helpers.addParticipantsToConversation(frClient, convo, participants, channel);
       // post this Message resource to the Conversation
-      await conversations_helpers.postMessageToFrontlineConversation(frClient, convo, event.From, event.Body);
+      await conversations_helpers.postMessageToFrontlineConversation(frClient, convo, event.From, event.Body, event.DateCreated);
     }
   }
 

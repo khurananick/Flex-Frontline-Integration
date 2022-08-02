@@ -141,16 +141,17 @@ module.exports = function () {
   /*
    * Replicates the Message resource from the Conversation to the Channel
    */
-  Self.postMessageToChatChannel = async function(client, convo, ClientIdentity, Body) {
+  Self.postMessageToChatChannel = async function(client, convo, ClientIdentity, Body, DateCreated) {
     if(!convo.attributes.chatChannelSid) return;
 
     console.log("Posting a message to a chat channel.", convo.attributes.chatChannelSid);
-    await client.chat.v2.services(convo.attributes.chatInstanceSid)
+    return await client.chat.v2.services(convo.attributes.chatInstanceSid)
       .channels(convo.attributes.chatChannelSid)
       .messages
       .create({
         from: Self.formatChatIdentity(ClientIdentity),
         body: Body,
+        dateCreated: DateCreated,
         attributes: JSON.stringify({ AddedViaConversationWebhook: true })
       })
   }

@@ -44,7 +44,7 @@ exports.handler = async function (context, event, callback) {
       if(!conversations_helpers.hasChatChannelMapped(convo.attributes)) {
         await chat_helpers.createChatForConversation(frClient, conversations_helpers, context, event)
       }
-      await chat_helpers.postMessageToChatChannel(client, convo, event.ClientIdentity, event.Body);
+      await chat_helpers.postMessageToChatChannel(client, convo, event.ClientIdentity, event.Body, event.DateCreated);
     }
   }
 

@@ -226,11 +226,11 @@ module.exports = function () {
   /*
    * Replicates the Message resource from the Channel to the Conversation
    */
-  Self.postMessageToFrontlineConversation = async function(frClient, convo, From, Body) {
+  Self.postMessageToFrontlineConversation = async function(frClient, convo, From, Body, DateCreated) {
     console.log("Posting a message to a conversation.", convo.sid, convo.conversationSid);
-    await frClient.conversations.conversations(convo.sid||convo.conversationSid)
+    return await frClient.conversations.conversations(convo.sid||convo.conversationSid)
                       .messages
-                      .create({author: Self.formatChatIdentity(From), body: Body})
+                      .create({author: Self.formatChatIdentity(From), body: Body, dateCreated: DateCreated})
                       .catch(function(e) { console.log(e); })
   }
 
@@ -239,7 +239,7 @@ module.exports = function () {
    */
   Self.postAllMessagesToConversation = async function(frClient, convo, messages) {
     for(const message of messages) {
-      await Self.postMessageToFrontlineConversation(frClient, convo, message.from, message.body);
+      await Self.postMessageToFrontlineConversation(frClient, convo, message.from, message.body, message.date_created);
     }
   }
 
