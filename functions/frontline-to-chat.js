@@ -131,6 +131,10 @@ exports.handler = async function (context, event, callback) {
         systemConvo,
         conversations_helpers.getSystemParticipantIdentity(lastEvent.from),
         "Transferring conversations is not allowed by your administrator.");
+      // remove historical record of the transfer ever happening.
+      frontlineEvents.pop();
+      attributes['frontline.events'] = frontlineEvents;
+      await conversations_helpers.updateConversation(frClient, event.ConversationSid, attributes);
     }
 
     if(isATransferEvent()) {
