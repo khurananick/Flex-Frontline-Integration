@@ -87,7 +87,7 @@ exports.handler = async function (context, event, callback) {
       const participants = await conversations_helpers.fetchConversationParticipants(frClient, event.ConversationSid);
 
       if(participants.length < 2) {
-        setTimeout(tryCreateChatChannel, 2000);
+        setTimeout(tryCreateChatChannel, 1000);
       }
       else {
         await chat_helpers.createChatForConversation(frClient, conversations_helpers, context, event, participants)
