@@ -63,11 +63,12 @@ exports.handler = async function (context, event, callback) {
    */
   if(helpers.inArray(["onMessageSent"], event.EventType)) {
     let channel = await chat_helpers.findChatChannel(client, event.ChannelSid, event.InstanceSid);
-    const participants = await chat_helpers.fetchChatChannelParticipants(client, channel.serviceSid, channel.sid);
 
     // if conversation exists, post message to it.
     if(chat_helpers.channelHasConversationMapped(channel)) {
       convo = { sid: channel.attributes.ConversationSid };
+      // look up existing participants.
+      const participants = await chat_helpers.fetchChatChannelParticipants(client, channel.serviceSid, channel.sid);
       // create and map corresponding Participants to the Conversation if not exists
       await conversations_helpers.addParticipantsToConversation(frClient, convo, participants, channel);
       // post this Message resource to the Conversation
