@@ -31,7 +31,7 @@ exports.handler = async function (context, event, callback) {
    */
   if(event.EventType == 'reservation.created') {
     if(event.TaskChannelUniqueName == "voice") return;
-    if((context.AUTO_ACCEPT_TASKS && context.AUTO_ACCEPT_TASKS == 'true')/* || JSON.parse(event.TaskAttributes).transferTargetType*/) {
+    if((context.AUTO_ACCEPT_TASKS && context.AUTO_ACCEPT_TASKS == 'true')) {
       await taskrouter_helpers.updateTaskrouterReservationById(
         client,
         event.WorkspaceSid,
@@ -84,7 +84,7 @@ exports.handler = async function (context, event, callback) {
         // then synch the participants between the Channel and Conversation
         const worker = await taskrouter_helpers.getWorkerByIdentity(frClient, context.FRONTLINE_WORKSPACE_SID, event.WorkerName);
         if(worker) {
-          convo = await conversations_helpers.createFrontlineConversation(frClient, channel, channel.serviceSid, channel.sid);
+          convo = await conversations_helpers.createFrontlineConversation(frClient, channel, channel.serviceSid, channel.sid, event.WorkspaceSid, event.TaskSid);
           channel.attributes.ConversationSid = convo.sid;
           channel.attributes.ConversationServiceSid = convo.chatServiceSid;
           channel = await chat_helpers.updateChatChannelAttributes(client, channel.attributes, channel.sid, channel.serviceSid);

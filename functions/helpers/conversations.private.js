@@ -52,7 +52,7 @@ module.exports = function () {
    * and sets the ChannelSid and InstanceSid of the Channel
    * its suppose to correspond to on the Flex project
    */
-  Self.createFrontlineConversation = async function(frClient, channel, InstanceSid, ChannelSid) {
+  Self.createFrontlineConversation = async function(frClient, channel, InstanceSid, ChannelSid, WorkspaceSid, TaskSid) {
     console.log("Creating a conversation.");
     const displayName = (function() {
       if(channel.attributes.channel_type == "web")
@@ -63,7 +63,9 @@ module.exports = function () {
     const convo = await frClient.conversations.conversations
         .create({friendlyName: displayName, attributes: JSON.stringify({
             chatChannelSid: ChannelSid,
-            chatInstanceSid: InstanceSid
+            chatInstanceSid: InstanceSid,
+            WorkspaceSid: WorkspaceSid,
+            TaskSid: TaskSid
         })});
     console.log("Created a conversation.", convo.sid);
     return convo;
