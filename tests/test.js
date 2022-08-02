@@ -1,6 +1,14 @@
 require('dotenv').config();
 const { env } = process;
 
+colors = require('colors');
+colors.enable()
+
+if(!env.AUTO_ACCEPT_TASKS || env.AUTO_ACCEPT_TASKS != "true") {
+  console.log("AUTO_ACCEPT_TASKS must be true to run test suite.".red);
+  return;
+}
+
 const TEST_CHANNEL_SMS = (env.npm_config_channel == "sms"); // if not we assume chat.
 
 const client                = require("twilio")(env.ACCOUNT_SID, env.AUTH_TOKEN);
