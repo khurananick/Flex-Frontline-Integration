@@ -106,12 +106,38 @@ exports.handler = async function (context, event, callback) {
     const frontlineEvents = attributes['frontline.events'];
     const lastEvent = frontlineEvents ? frontlineEvents[frontlineEvents.length-1] : null;
 
-    if(lastEvent && lastEvent.to && lastEvent.from && (new Date(event.DateUpdated).getTime() - lastEvent.date) < 1000) {
+    function isATransferEvent() {
+      return (lastEvent && lastEvent.to && lastEvent.from && (new Date(event.DateUpdated).getTime() - lastEvent.date) < 1000);
+    }
+
+    function transferDisabled() {
+      return (context.DISABLE_FRONTLINE_TRANSFER && context.DISABLE_FRONTLINE_TRANSFER == "true");
+    }
+
+    async function transferInFlex() {
       const chat_transfer_helper = require(Runtime.getFunctions()['helpers/task-transfer'].path)();
       const worker = await taskrouter_helpers.getWorkerByIdentity(client, context.WORKSPACE_SID, lastEvent.to);
       await conversations_helpers.removeParticipantByIdentity(frClient, event.ConversationSid, null, lastEvent.to);
       await chat_helpers.removeChannelParticipant(client, context.CHAT_SERVICE_SID, attributes.chatChannelSid, lastEvent.from);
       await chat_transfer_helper.transfer(client, context.WORKSPACE_SID, context.WORKFLOW_SID, attributes.TaskSid, worker.sid, worker.friendlyName);
+    }
+
+    async function blockTransfer() {
+      await conversations_helpers.removeParticipantByIdentity(frClient, event.ConversationSid, null, lastEvent.to);
+      await conversations_helpers.addParticipant(frClient, { sid: event.ConversationSid }, { identity: lastEvent.from });
+      const systemConvo = await conversations_helpers.getSystemConversation(frClient, lastEvent.from);
+      await conversations_helpers.postMessageToFrontlineConversation(
+        frClient,
+        systemConvo,
+        conversations_helpers.getSystemParticipantIdentity(lastEvent.from),
+        "Transferring conversations is not allowed by your administrator.");
+    }
+
+    if(isATransferEvent()) {
+      if(transferDisabled())
+        await blockTransfer();
+      else
+        await transferInFlex();
     }
   }
 }
